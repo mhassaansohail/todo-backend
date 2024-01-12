@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const todoSchema = z.object({
+export const todoInputSchema = z.object({
     id: z.string({
         invalid_type_error: "Id must be a string",
     }).optional(),

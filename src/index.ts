@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 dotenv.config({ path: resolve(__dirname, '../.env') });
-import express, {Request, Response, NextFunction} from 'express';
+import express from 'express';
 import cors from 'cors';
-import { AuthRouter, UserRouter, TodoRouter } from './routes';
-import authMiddleware from './middlewares/auth';
+import { AuthRouter, UserRouter, TodoRouter } from './routers';
+import { AuthMiddleware } from './middlewares/AuthMiddleware';
 
 const expressApp = express();
 
@@ -13,8 +13,8 @@ expressApp.use(express.json());
 expressApp.use(express.urlencoded({ extended: true }));
 
 expressApp.use('/api/auth', AuthRouter);
-expressApp.use('/api/user', authMiddleware, UserRouter);
-expressApp.use('/api/todo', authMiddleware, TodoRouter);
+expressApp.use('/api/user', AuthMiddleware.authenticateUser, UserRouter);
+expressApp.use('/api/todo', AuthMiddleware.authenticateUser, TodoRouter);
 
 const HTTP_PORT: string = String(process.env.HTTP_PORT);
 

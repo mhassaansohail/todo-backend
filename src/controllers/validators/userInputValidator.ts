@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const userSchema = z.object({
+export const userInputSchema = z.object({
     id: z.string({
         invalid_type_error: "Id must be a string",
     }).optional(),
@@ -8,7 +8,7 @@ export const userSchema = z.object({
         required_error: "Name is required",
         invalid_type_error: "Name must be a string",
     }).min(1),
-    username: z.string({
+    userName: z.string({
         required_error: "Username is required",
         invalid_type_error: "Username must be a string",
     }).min(1),

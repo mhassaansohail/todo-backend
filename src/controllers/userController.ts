@@ -1,43 +1,40 @@
 import { Request, Response, NextFunction } from "express";
-import { idSchema, userParamsSchema, userSchema } from "./validations";
+import { userIdParamSchema, userParamsSchema, userInputSchema } from "./validators";
 import bcrypt from 'bcrypt';
 import { v4 as uuid } from 'uuid';
-import { Prisma, PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 export class UserController {
 
-    constructor() {
-    }
-
-    getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    static getAllUsers = async (req: Request, res: Response): Promise<Response> => {
         try {
             const users = await prisma.user.findMany();
             if (users.length === 0) {
-                res.status(204).json({ message: `No users found.`, data: null });
+                return res.status(204).json({ message: `No users found.`, data: null });
             }
-            res.status(200).json({ message: `Users found.`, data: users });
+            return res.status(200).json({ message: `Users found.`, data: users });
         } catch (error) {
-            res.status(500).json({ message: `Could not fetch users.` });
+            return res.status(500).json({ message: `Could not fetch users.` });
         }
     }
-    getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    static getUserById = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { id } = idSchema.parse(req.params);
+            const { userId } = userIdParamSchema.parse(req.params);
             const user = await prisma.user.findUnique({
-                where: { id: String(id) },
+                where: { id: String(userId) },
             });
             if (!user) {
-                res.status(204).json({ message: `No user with id: ${id} found.`, data: null });
+                return res.status(204).json({ message: `No user with id: ${userId} found.`, data: null });
             }
-            res.status(200).json({ message: `User with id ${id} found.`, data: user });
+            return res.status(200).json({ message: `User with id ${userId} found.`, data: user });
         } catch (error) {
-            res.status(500).json({ message: `Could not fetch user.` });
+            return res.status(500).json({ message: `Could not fetch user.` });
         }
     }
-    getByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    static searchUser = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { name, username, email } = userParamsSchema.parse(req.query);
+            const { name, userName, email } = userParamsSchema.parse(req.query);
             const users = await prisma.user.findMany({
                 where: {
                     AND:
@@ -46,7 +43,7 @@ export class UserController {
                                 name: { contains: String(name) }
                             },
                             {
-                                username: { contains: String(username) }
+                                userName: { contains: String(userName) }
                             },
                             {
                                 email: { contains: String(email) }
@@ -55,18 +52,18 @@ export class UserController {
                 },
             });;
             if (users.length === 0) {
-                res.status(204).json({ message: `Users with params: name: ${name}, username: ${username}, email: ${email} not found.`, data: null });
+                return res.status(204).json({ message: `Users with params: name: ${name}, username: ${userName}, email: ${email} not found.`, data: null });
             } else {
-                res.status(200).json({ message: `Users with params: name: ${name}, username: ${username}, email: ${email} found.`, data: users });
+                return res.status(200).json({ message: `Users with params: name: ${name}, username: ${userName}, email: ${email} found.`, data: users });
             }
         } catch (error) {
-            res.status(500).json({ message: `Could not fetch users.` });
+            return res.status(500).json({ message: `Could not fetch users.` });
         }
     }
-    create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    static createUser = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const user = userSchema.parse(req.body);
-            if (!user.email || !user.username) {
+            const user = userInputSchema.parse(req.body);
+            if (!user.email || !user.userName) {
                 throw new Error('New email and username are required for the creation.');
             }
 
@@ -75,15 +72,15 @@ export class UserController {
             });
 
             const existingUserWithUsername = await prisma.user.findFirst({
-                where: { username: user.username },
+                where: { userName: user.userName },
             });
 
             if (existingUserWithEmail) {
-                res.status(400).json({ message: 'Email is already in use by another user.' });
+                return res.status(400).json({ message: 'Email is already in use by another user.' });
             }
 
             if (existingUserWithUsername) {
-                res.status(400).json({ message: 'Username is already in use by another user.' });
+                return res.status(400).json({ message: 'Username is already in use by another user.' });
             }
             const saltRounds = process.env.SALT_ROUNDS;
             const password = user.password;
@@ -94,75 +91,75 @@ export class UserController {
                 data: {
                     id: id,
                     name: user.name,
-                    username: user.username,
+                    userName: user.userName,
                     email: user.email,
                     password: user.password,
                     age: user.age
                 }
             });
-            res.status(201).json({ message: `User created`, data: userCreation });
+            return res.status(201).json({ message: `User created`, data: userCreation });
         } catch (error) {
-            res.status(500).json({ message: `Could not create user.` });
+            return res.status(500).json({ message: `Could not create user.` });
         }
     }
-    update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    static updateUser = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { id } = idSchema.parse(req.params);
-            const user = userSchema.parse(req.body);
+            const { userId } = userIdParamSchema.parse(req.params);
+            const user = userInputSchema.parse(req.body);
             const userExists = await prisma.user.findUnique({
-                where: { id: id }
+                where: { id: userId }
             });
             if (!userExists) {
-                res.status(204).json({ message: `User with id: ${id} does not exist.`, data: null });
+                return res.status(204).json({ message: `User with id: ${userId} does not exist.`, data: null });
             }
             const existingUserWithEmail = await prisma.user.findFirst({
-                where: { email: user.email, NOT: { id: id } },
+                where: { email: user.email, NOT: { id: userId } },
             });
 
             const existingUserWithUsername = await prisma.user.findFirst({
-                where: { username: user.username, NOT: { id: id } },
+                where: { userName: user.userName, NOT: { id: userId } },
             });
 
             if (existingUserWithEmail) {
-                res.status(400).json({ message: 'Email is already in use by another user.' });
+                return res.status(400).json({ message: 'Email is already in use by another user.' });
             }
 
             if (existingUserWithUsername) {
-                res.status(400).json({ message: 'Username is already in use by another user.' });
+                return res.status(400).json({ message: 'Username is already in use by another user.' });
             }
             const saltRounds = process.env.SALT_ROUNDS;
             const password = user.password;
             const hashedPassword = bcrypt.hashSync(password, Number(saltRounds));
             const userUpdation = await prisma.user.update({
-                where: { id: id },
+                where: { id: userId },
                 data: {
                     name: user.name,
-                    username: user.username,
+                    userName: user.userName,
                     email: user.email,
                     password: hashedPassword,
                     age: user.age
                 }
             });
-            res.status(200).json({ message: `User with id: ${id} updated.`, data: userUpdation });
+            return res.status(200).json({ message: `User with id: ${userId} updated.`, data: userUpdation });
         } catch (error) {
-            res.status(500).json({ message: `Could not update user.` });
+            return res.status(500).json({ message: `Could not update user.` });
         }
     }
-    delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    static deleteUser = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { id } = idSchema.parse(req.params);
+            const { userId } = userIdParamSchema.parse(req.params);
             const userExists = await prisma.user.findUnique({
-                where: { id: id }
+                where: { id: userId }
             });
             if (!userExists) {
-                res.status(204).json({ message: `User with id: ${id} does not exist.`, data: null });
+                return res.status(204).json({ message: `User with id: ${userId} does not exist.`, data: null });
             }
-            const userUpdation = await prisma.user.delete({
-                where: { id: String(id) },
+            const userDeletion = await prisma.user.delete({
+                where: { id: String(userId) },
             });
-            res.status(200).json({ message: `User with id: ${id} deleted.`, data: userUpdation });
+            return res.status(200).json({ message: `User with id: ${userId} deleted.`, data: userDeletion });
         } catch (error) {
-            res.status(500).json({ message: `Could not delete users.` });
+            return res.status(500).json({ message: `Could not delete user.` });
         }
     }
 

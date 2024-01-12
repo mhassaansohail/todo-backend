@@ -1,30 +1,28 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
-class AuthMiddleware {
-    constructor() {
-    }
+export class AuthMiddleware {
 
-    authenticator = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    public static authenticateUser = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
         try {
             const authHeader = req.headers.authorization;
             if (!authHeader) {
-                res.status(401).json({ error: "No authorization token provided." });
+                return res.status(401).json({ error: "No authorization token provided." });
             } else {
                 const authHeaderParts = authHeader.split(' ');
                 if (!Array.isArray(authHeaderParts)) {
-                    res.status(401).json({ error: "Invalid token provided." });
+                    return res.status(401).json({ error: "Invalid token provided." });
                 }
                 const token = authHeaderParts[1];
-                await this.authenticateToken(token);
+                await AuthMiddleware.verifyToken(token);
                 next();
             }
         } catch (error) {
-            res.status(401).json({ error: error });
+            return res.status(401).json({ error: error });
         }
     }
 
-    authenticateToken = async (token: string): Promise<object> => {
+    private static verifyToken = async (token: string): Promise<object> => {
         try {
             const secretKey: string = String(process.env.SECRET_KEY);
             return Object(jwt.verify(token, secretKey));
@@ -33,5 +31,3 @@ class AuthMiddleware {
         }
     }
 }
-
-export default new AuthMiddleware().authenticator;

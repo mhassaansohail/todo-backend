@@ -1,6 +1,5 @@
-import { BaseController } from "./baseController";
-import { AuthController } from "./authController";
-import { UserController } from "./userController";
-import { TodoController } from "./todoController";
+import { AuthController } from "./AuthController";
+import { UserController } from "./UserController";
+import { TodoController } from "./TodoController";
 
-export { BaseController, AuthController, UserController, TodoController };
+export { AuthController, UserController, TodoController };

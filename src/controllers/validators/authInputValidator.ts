@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-export const authSchema = z.object({
-    username: z.string({
+export const authInputSchema = z.object({
+    userName: z.string({
         required_error: "Username is required",
         invalid_type_error: "Username must be a string",
     }).min(1),
