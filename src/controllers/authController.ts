@@ -6,6 +6,9 @@ export class AuthController {
 
     static login = async (req: Request, res: Response): Promise<Response> => {
         try {
+            if (req.query) {
+
+            }
             const resultantUrl = await AuthService.login();
             return res.status(200).json(resultantUrl);
         } catch (error) {

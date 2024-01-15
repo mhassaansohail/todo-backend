@@ -8,7 +8,7 @@ export class UserService {
         this.repository = repoistory
     }
 
-    async getPaginatedData(pageNumber: number, recordsPerPage: number, conditionParams: Partial<User>) {
+    async getPaginatedUsers(pageNumber: number, recordsPerPage: number, conditionParams: Partial<User>) {
         try {
             const totalRecords = await this.repository.count();
             const totalPages = totalRecords / recordsPerPage;
