@@ -8,19 +8,11 @@ export class UserService {
         this.repository = repoistory
     }
 
-    async getPaginatedUsers(pageNumber: number, recordsPerPage: number, conditionParams: Partial<User>) {
+    async getPaginatedUsers(offset: number, pageSize: number, conditionParams: Partial<User>) {
         try {
-            const totalRecords = await this.repository.count();
-            const totalPages = totalRecords / recordsPerPage;
-            if (totalPages <= 0) {
-                throw new Error('Records requested exceed total records available.')
-            }
-            if (pageNumber > totalPages) {
-                throw new Error('Page number requested exceeds total pages available.')
-            }
-            const offset = recordsPerPage * (pageNumber - 1);
-            const usersAndCount = await this.repository.fetch(offset, recordsPerPage, conditionParams);
-            const paginatedUsers: PaginatedCollection<User> = new PaginatedCollection(usersAndCount.models, usersAndCount.count, recordsPerPage, pageNumber, totalPages);
+            const pageNumber = Math.floor(offset / pageSize) + 1;
+            const usersAndCount = await this.repository.fetch(offset, pageSize, conditionParams);
+            const paginatedUsers = new PaginatedCollection(usersAndCount.models, usersAndCount.count, pageSize, pageNumber);
             return paginatedUsers;
         } catch (error) {
             throw error;
@@ -30,6 +22,14 @@ export class UserService {
     async getUserById(userId: string) {
         try {
             return await this.repository.fetchById(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getUserByUsername(userName: string) {
+        try {
+            return await this.repository.fetchByUsername(userName);
         } catch (error) {
             throw error;
         }

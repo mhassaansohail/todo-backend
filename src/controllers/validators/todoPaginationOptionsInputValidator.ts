@@ -4,7 +4,7 @@ export const todoPaginationOptionsInputSchema = z.object({
     offset: z.string({
         required_error: "Offset is required",
         invalid_type_error: "Offset must be string",
-    }).transform((value) => parseInt(value)).refine((value) => !isNaN(value) && value > 0, {
+    }).transform((value) => parseInt(value)).refine((value) => !isNaN(value) && value >= 0, {
         message: "Invalid Offset",
     }),
     pageSize: z.string({

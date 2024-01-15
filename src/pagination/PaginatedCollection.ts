@@ -1,22 +1,28 @@
 export class PaginatedCollection<T> {
     records: T[];
     totalRecords: number;
-    pageSize: number;
     recordsInPage: number;
     pageNumber: number;
     totalPages: number;
     prevPage: number | undefined;
     nextPage: number | undefined;
 
-    constructor(records: T[], totalRecords: number, pageSize: number, pageNumber: number, prevPage?: number, nextPage?: number) {
+    constructor(records: T[], totalRecords: number, pageSize: number, pageNumber: number) {
         this.records = records;
-        this.totalRecords = totalRecords;
-        this.pageSize = pageSize;
         this.recordsInPage = this.recordsInCurrentPage;
+        this.totalRecords = totalRecords;
         this.pageNumber = pageNumber;
-        this.prevPage = prevPage;
-        this.nextPage = nextPage;
         this.totalPages = this.calculateTotalPages();
+        this.prevPage = this.calculatePrevPage();
+        this.nextPage = this.calculateNextPage();
+    }
+
+    private calculatePrevPage(): number | undefined {
+        return this.pageNumber > 1 ? this.pageNumber - 1 : undefined;
+    }
+
+    private calculateNextPage(): number | undefined {
+        return this.pageNumber < this.totalPages ? this.pageNumber + 1 : undefined;
     }
 
     private calculateTotalPages(): number {
@@ -25,21 +31,5 @@ export class PaginatedCollection<T> {
 
     get recordsInCurrentPage(): number {
         return this.records.length;
-    }
-
-    get endIndexOfPage(): number {
-        return this.pageNumber * this.pageSize;
-    }
-
-    get startIndexOfPage(): number {
-        return this.endIndexOfPage - this.recordsInCurrentPage + 1;
-    }
-
-    hasPrevPage(): boolean {
-        return this.prevPage !== undefined;
-    }
-
-    hasNextPage(): boolean {
-        return this.nextPage !== undefined;
     }
 }

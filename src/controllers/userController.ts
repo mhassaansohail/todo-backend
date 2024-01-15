@@ -7,15 +7,16 @@ export class UserController {
 
     static getPaginatedUsers = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { offest, pageSize, name, email, userName } = userPaginationOptionsInputSchema.parse(req.query);
+            const { offset, pageSize, name, email, userName } = userPaginationOptionsInputSchema.parse(req.query);
             const conditionParams = {
                 name, email, userName
             }
-            const users = await userService.getPaginatedUsers(offest, pageSize, conditionParams);
+            const users = await userService.getPaginatedUsers(offset, pageSize, conditionParams);
             if (users.recordsInCurrentPage === 0) {
                 return res.status(204).json({ message: `No users found.`, data: users });
+            } else {
+                return res.status(200).json({ message: `Users found.`, data: users });
             }
-            return res.status(200).json({ message: `Users found.`, data: users });
         } catch (error) {
             return res.status(500).json({ message: `Could not fetch users.` });
         }

@@ -1,4 +1,5 @@
 import { authCodeInputSchema } from './authCodeInputValidator';
+import { authInputSchema } from './authInputValidator';
 import { userIdParamSchema } from './userIdInputValidator';
 import { todoIdParamSchema } from './todoIdInputValidator';
 import { userInputSchema } from './userInputValidator';
@@ -10,6 +11,7 @@ import { todoPaginationOptionsInputSchema } from './todoPaginationOptionsInputVa
 
 export {
     authCodeInputSchema,
+    authInputSchema,
     userIdParamSchema,
     todoIdParamSchema,
     userInputSchema,

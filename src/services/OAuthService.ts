@@ -66,7 +66,7 @@ export class OAuthService {
         }
     }
 
-    async authenticateToken(token: any) {
+    async verifyToken(token: any) {
         try {
             const ticket = await this.oAuthClient.verifyIdToken({
                 idToken: token,

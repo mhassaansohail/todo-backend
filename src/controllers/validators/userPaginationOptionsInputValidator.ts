@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
 export const userPaginationOptionsInputSchema = z.object({
-    offest: z.string({
-        required_error: "Offset Number is required",
+    offset: z.string({
+        required_error: "Offset is required",
         invalid_type_error: "Offset must be string",
-    }).transform((value) => parseInt(value)).refine((value) => !isNaN(value) && value > 0, {
+    }).transform((value) => parseInt(value)).refine((value) => !isNaN(value) && value >= 0, {
         message: "Invalid Offset",
     }),
     pageSize: z.string({

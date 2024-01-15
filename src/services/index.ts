@@ -7,6 +7,7 @@ import { TodoService } from "./TodoService";
 
 const userService = new UserService(new UserStore());
 const todoService = new TodoService(new TodoStore());
+const authService = new AuthService(new UserStore());
 const oAuthService = new OAuthService();
 
-export { AuthService, oAuthService, userService, todoService };
+export { authService, oAuthService, userService, todoService };

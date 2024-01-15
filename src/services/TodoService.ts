@@ -8,19 +8,11 @@ export class TodoService {
         this.repository = repoistory
     }
 
-    async getPaginatedTodos(pageNumber: number, recordsPerPage: number, conditionParams: Partial<Todo>) {
+    async getPaginatedTodos(offset: number, pageSize: number, conditionParams: Partial<Todo>) {
         try {
-            const totalRecords = await this.repository.count();
-            const totalPages = totalRecords / recordsPerPage;
-            if (totalPages <= 0) {
-                throw new Error('Records requested exceed total records available.')
-            }
-            if (pageNumber > totalPages) {
-                throw new Error('Page number requested exceeds total pages available.')
-            }
-            const offset = recordsPerPage * (pageNumber - 1);
-            const todosAndCount = await this.repository.fetch(offset, recordsPerPage, conditionParams);
-            const paginatedTodos: PaginatedCollection<Todo> = new PaginatedCollection(todosAndCount.models, todosAndCount.count, recordsPerPage, pageNumber, totalPages);
+            const pageNumber = Math.floor(offset / pageSize) + 1;
+            const todosAndCount = await this.repository.fetch(offset, pageSize, conditionParams);
+            const paginatedTodos = new PaginatedCollection(todosAndCount.models, todosAndCount.count, pageSize, pageNumber);
             return paginatedTodos;
         } catch (error) {
             throw error;

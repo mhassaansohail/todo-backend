@@ -1,16 +1,25 @@
 import { Request, Response } from 'express';
-import { authCodeInputSchema } from './validators';
-import { AuthService } from '../services';
+import { authCodeInputSchema, authInputSchema } from './validators';
+import { authService } from '../services';
 
 export class AuthController {
 
     static login = async (req: Request, res: Response): Promise<Response> => {
         try {
-            if (req.query) {
-
+            const bodyKeysCount = Object.keys(req.body).length;
+            if (bodyKeysCount === 2) {
+                const { userName, password } = authInputSchema.parse(req.body);
+                const token = await authService.loginByCredentials(userName, password);
+                if (!token) {
+                    return res.status(401).json({ message: 'Invalid username or password' });
+                }
+                return res.status(200).json({ token });
+            } else if (bodyKeysCount === 0) {
+                const consentScreenUrl = await authService.loginWithOAuth();
+                return res.status(200).json({ consentScreenUrl });
+            } else {
+                return res.status(401).json({ message: 'Authentication failed' });
             }
-            const resultantUrl = await AuthService.login();
-            return res.status(200).json(resultantUrl);
         } catch (error) {
             return res.status(401).json({ message: 'Authentication failed' });
         }
@@ -19,7 +28,7 @@ export class AuthController {
     static callback = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { code } = authCodeInputSchema.parse(req.query);
-            const token = await AuthService.callback(code);
+            const token = await authService.callback(code);
             return res.json({ token });
         } catch (error) {
             return res.status(401).json({ message: 'Authentication failed' });
