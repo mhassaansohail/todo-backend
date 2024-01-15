@@ -12,7 +12,7 @@ expressApp.use(cors());
 expressApp.use(express.json());
 expressApp.use(express.urlencoded({ extended: true }));
 
-expressApp.use('/api/auth', AuthRouter);
+expressApp.use('/auth', AuthRouter);
 expressApp.use('/api/user', AuthMiddleware.authenticateUser, UserRouter);
 expressApp.use('/api/todo', AuthMiddleware.authenticateUser, TodoRouter);
 
