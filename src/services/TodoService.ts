@@ -1,4 +1,4 @@
-import { Todo } from "../types/Todo";
+import { Todo } from "../types";
 import { TodoRepository } from "../stores";
 import { PaginatedCollection } from "../pagination";
 
