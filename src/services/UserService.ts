@@ -8,12 +8,10 @@ export class UserService {
         this.repository = repoistory
     }
 
-    async getPaginatedUsers(offset: number, pageSize: number, conditionParams: Partial<User>) {
+    async getUsers(offset: number, limit: number, conditionParams: Partial<User>) {
         try {
-            const pageNumber = Math.floor(offset / pageSize) + 1;
-            const usersAndCount = await this.repository.fetch(offset, pageSize, conditionParams);
-            const paginatedUsers = new PaginatedCollection(usersAndCount.models, usersAndCount.count, pageSize, pageNumber);
-            return paginatedUsers;
+            const usersAndCount = await this.repository.fetchAll(offset, limit, conditionParams);
+            return new PaginatedCollection(usersAndCount.rows, usersAndCount.count, offset, limit);
         } catch (error) {
             throw error;
         }

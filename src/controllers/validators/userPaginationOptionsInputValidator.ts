@@ -7,11 +7,11 @@ export const userPaginationOptionsInputSchema = z.object({
     }).transform((value) => parseInt(value)).refine((value) => !isNaN(value) && value >= 0, {
         message: "Invalid Offset",
     }),
-    pageSize: z.string({
-        required_error: "Page size is required",
-        invalid_type_error: "Page size must be a string",
+    limit: z.string({
+        required_error: "Limit is required",
+        invalid_type_error: "Limit must be a string",
     }).transform((value) => parseInt(value, 10)).refine((value) => !isNaN(value) && value > 0, {
-        message: "Invalid Page size",
+        message: "Invalid Limit",
     }),
     name: z.string({
         invalid_type_error: "Name must be string",

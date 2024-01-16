@@ -1,5 +1,5 @@
 import { Todo } from "./Todo";
 import { User } from "./User";
-import { ModelAndCount } from "./ModelAndCount";
+import { RowsAndCount } from "./RowsAndCount";
 
-export { User, Todo, ModelAndCount };
+export { User, Todo, RowsAndCount };

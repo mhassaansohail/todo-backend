@@ -5,15 +5,12 @@ import { todoService } from "../services";
 
 export class TodoController {
 
-    static getPaginatedTodos = async (req: Request, res: Response): Promise<Response> => {
+    static getTodos = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { offset, pageSize, title, description } = todoPaginationOptionsInputSchema.parse(req.query);
-            const conditionParams = {
-                title,
-                description
-            }
-            const users = await todoService.getPaginatedTodos(offset, pageSize, conditionParams);
-            if (users.recordsInCurrentPage === 0) {
+            const { offset, limit, title, description } = todoPaginationOptionsInputSchema.parse(req.query);
+            const conditionParams = { title, description }
+            const users = await todoService.getTodos(offset, limit, conditionParams);
+            if (users.rowsInCurrentPage === 0) {
                 return res.status(204).json({ message: `No users found.`, data: users });
             }
             return res.status(200).json({ message: `Users found.`, data: users });

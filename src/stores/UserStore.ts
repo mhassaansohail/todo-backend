@@ -1,15 +1,11 @@
-import { User, ModelAndCount } from "../types";
+import { User, RowsAndCount } from "../types";
 import { UserRepository } from "./UserRepository";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export class UserStore implements UserRepository {
 
-    async count(): Promise<number> {
-        return await prisma.user.count();
-    }
-
-    async fetch(offset: number, limit: number, queryParams: Partial<User>): Promise<ModelAndCount<User>> {
+    async fetchAll(offset: number, limit: number, queryParams: Partial<User>): Promise<RowsAndCount<User>> {
         try {
             const conditions = {
                 OR: [
@@ -18,7 +14,7 @@ export class UserStore implements UserRepository {
                     { userName: { contains: queryParams.userName } },
                 ],
             }
-            const [count, models] = await prisma.$transaction([
+            const [count, rows] = await prisma.$transaction([
                 prisma.user.count({
                     where: conditions
                 }),
@@ -30,7 +26,7 @@ export class UserStore implements UserRepository {
             ]);
             return {
                 count,
-                models
+                rows
             }
         } catch (error) {
             throw error;
@@ -39,10 +35,9 @@ export class UserStore implements UserRepository {
 
     async fetchById(id: string): Promise<User | null> {
         try {
-            const user = await prisma.user.findUnique({
-                where: { id: id }
+            return await prisma.user.findUnique({
+                where: { id }
             });
-            return user;
         } catch (error) {
             throw error;
         }
@@ -50,10 +45,9 @@ export class UserStore implements UserRepository {
 
     async fetchByEmail(email: string): Promise<User | null> {
         try {
-            const user = await prisma.user.findUnique({
+            return await prisma.user.findUnique({
                 where: { email }
             });
-            return user;
         } catch (error) {
             throw error;
         }
@@ -61,10 +55,9 @@ export class UserStore implements UserRepository {
 
     async fetchByUsername(userName: string): Promise<User | null> {
         try {
-            const user = await prisma.user.findUnique({
+            return await prisma.user.findUnique({
                 where: { userName }
             });
-            return user;
         } catch (error) {
             throw error;
         }
@@ -72,10 +65,9 @@ export class UserStore implements UserRepository {
 
     async create(user: User): Promise<User> {
         try {
-            const userCreation = await prisma.user.create({
+            return await prisma.user.create({
                 data: user
             });
-            return userCreation;
         } catch (error) {
             throw error;
         }
@@ -83,11 +75,10 @@ export class UserStore implements UserRepository {
 
     async update(id: string, user: User): Promise<User> {
         try {
-            const userUpdation = await prisma.user.update({
+            return await prisma.user.update({
                 where: { id: id },
                 data: user
             });
-            return userUpdation;
         } catch (error) {
             throw error;
         }
@@ -95,10 +86,9 @@ export class UserStore implements UserRepository {
 
     async remove(id: string): Promise<User> {
         try {
-            const userDeletion = await prisma.user.delete({
+            return await prisma.user.delete({
                 where: { id: id }
             });
-            return userDeletion;
         } catch (error) {
             throw error;
         }

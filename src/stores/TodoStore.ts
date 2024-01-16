@@ -1,22 +1,18 @@
-import { Todo, ModelAndCount } from "../types";
+import { Todo, RowsAndCount } from "../types";
 import { TodoRepository } from "./TodoRepository";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export class TodoStore implements TodoRepository {
 
-    async count(): Promise<number> {
-        return await prisma.user.count();
-    }
-
-    async fetch(offset: number, limit: number, queryParams: Partial<Todo>): Promise<ModelAndCount<Todo>> {
+    async fetchAll(offset: number, limit: number, queryParams: Partial<Todo>): Promise<RowsAndCount<Todo>> {
         const conditions = {
             OR: [
                 { title: { contains: queryParams.title } },
                 { description: { contains: queryParams.description } },
             ],
         }
-        const [count, models] = await prisma.$transaction([
+        const [count, rows] = await prisma.$transaction([
             prisma.todo.count({
                 where: conditions
             }),
@@ -28,27 +24,25 @@ export class TodoStore implements TodoRepository {
         ]);
         return {
             count,
-            models
-        }
+            rows
+        };
     }
 
     async fetchById(id: string): Promise<Todo | null> {
         try {
-            const todo = await prisma.todo.findUnique({
-                where: { id: id }
+            return await prisma.todo.findUnique({
+                where: { id }
             });
-            return todo;
         } catch (error) {
             throw error;
         }
     }
 
-    async create(todo: Todo): Promise<Todo> {
+    async add(todo: Todo): Promise<Todo> {
         try {
-            const todoCreation = await prisma.todo.create({
+            return await prisma.todo.create({
                 data: todo
             });
-            return todoCreation;
         } catch (error) {
             throw error;
         }
@@ -56,11 +50,10 @@ export class TodoStore implements TodoRepository {
 
     async update(id: string, todo: Todo): Promise<Todo> {
         try {
-            const todoUpdation = await prisma.todo.update({
-                where: { id: id },
+            return await prisma.todo.update({
+                where: { id },
                 data: todo
             });
-            return todoUpdation;
         } catch (error) {
             throw error;
         }
@@ -68,10 +61,9 @@ export class TodoStore implements TodoRepository {
 
     async remove(id: string): Promise<Todo> {
         try {
-            const todoDeletion = await prisma.todo.delete({
-                where: { id: id }
+            return await prisma.todo.delete({
+                where: { id }
             });
-            return todoDeletion;
         } catch (error) {
             throw error;
         }

@@ -8,12 +8,10 @@ export class TodoService {
         this.repository = repoistory
     }
 
-    async getPaginatedTodos(offset: number, pageSize: number, conditionParams: Partial<Todo>) {
+    async getTodos(offset: number, limit: number, conditionParams: Partial<Todo>) {
         try {
-            const pageNumber = Math.floor(offset / pageSize) + 1;
-            const todosAndCount = await this.repository.fetch(offset, pageSize, conditionParams);
-            const paginatedTodos = new PaginatedCollection(todosAndCount.models, todosAndCount.count, pageSize, pageNumber);
-            return paginatedTodos;
+            const todoRowsAndCount = await this.repository.fetchAll(offset, limit, conditionParams);
+            return new PaginatedCollection(todoRowsAndCount.rows, todoRowsAndCount.count, offset, limit);
         } catch (error) {
             throw error;
         }
@@ -29,7 +27,7 @@ export class TodoService {
 
     async createTodo(todo: Todo) {
         try {
-            return await this.repository.create(todo);
+            return await this.repository.add(todo);
         } catch (error) {
             throw error;
         }

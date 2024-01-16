@@ -5,15 +5,13 @@ import { v4 as uuid } from 'uuid';
 import { userService } from "../services";
 export class UserController {
 
-    static getPaginatedUsers = async (req: Request, res: Response): Promise<Response> => {
+    static getUsers = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { offset, pageSize, name, email, userName } = userPaginationOptionsInputSchema.parse(req.query);
-            const conditionParams = {
-                name, email, userName
-            }
-            const users = await userService.getPaginatedUsers(offset, pageSize, conditionParams);
-            if (users.recordsInCurrentPage === 0) {
-                return res.status(204).json({ message: `No users found.`, data: users });
+            const { offset, limit, name, email, userName } = userPaginationOptionsInputSchema.parse(req.query);
+            const conditionParams = { name, email, userName };
+            const users = await userService.getUsers(offset, limit, conditionParams);
+            if (users.rowsInCurrentPage === 0) {
+                return res.status(204).json({ message: `No users found on current page.`, data: users });
             } else {
                 return res.status(200).json({ message: `Users found.`, data: users });
             }

@@ -1,17 +1,17 @@
 export class PaginatedCollection<T> {
-    records: T[];
-    totalRecords: number;
-    recordsInPage: number;
+    rows: T[];
+    totalRows: number;
+    rowsInPage: number;
     pageNumber: number;
     totalPages: number;
     prevPage: number | undefined;
     nextPage: number | undefined;
 
-    constructor(records: T[], totalRecords: number, pageSize: number, pageNumber: number) {
-        this.records = records;
-        this.recordsInPage = this.recordsInCurrentPage;
-        this.totalRecords = totalRecords;
-        this.pageNumber = pageNumber;
+    constructor(rows: T[], totalRows: number, offset: number, limit: number) {
+        this.rows = rows;
+        this.rowsInPage = this.rowsInCurrentPage;
+        this.totalRows = totalRows;
+        this.pageNumber = this.calculatePageNumber(offset, limit);
         this.totalPages = this.calculateTotalPages();
         this.prevPage = this.calculatePrevPage();
         this.nextPage = this.calculateNextPage();
@@ -26,10 +26,13 @@ export class PaginatedCollection<T> {
     }
 
     private calculateTotalPages(): number {
-        return Math.ceil(this.totalRecords / this.recordsInPage);
+        return Math.ceil(this.totalRows / this.rowsInPage);
     }
 
-    get recordsInCurrentPage(): number {
-        return this.records.length;
+    get rowsInCurrentPage(): number {
+        return this.rows.length;
+    }
+    private calculatePageNumber(offset: number, limit: number): number {
+        return Math.floor(offset / limit) + 1
     }
 }
