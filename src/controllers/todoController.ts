@@ -25,9 +25,8 @@ export class TodoController {
             const todo = await todoService.getTodoById(todoId);
             if (!todo) {
                 return res.status(204).json({ message: `No todo with id: ${todoId} found.`, data: null });
-            } else {
-                return res.status(200).json({ message: `Todo with id: ${todoId} found.`, data: todo });
             }
+            return res.status(200).json({ message: `Todo with id: ${todoId} found.`, data: todo });
         } catch (error) {
             return res.status(500).json({ message: `Could not fetch todo` });
         }

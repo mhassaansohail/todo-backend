@@ -26,6 +26,9 @@ export class PaginatedCollection<T> {
     }
 
     private calculateTotalPages(): number {
+        if (this.rowsInPage <= 0) {
+            throw new Error("End of Page.");
+        }
         return Math.ceil(this.totalRows / this.rowsInPage);
     }
 

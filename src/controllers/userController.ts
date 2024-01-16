@@ -12,9 +12,8 @@ export class UserController {
             const users = await userService.getUsers(offset, limit, conditionParams);
             if (users.rowsInCurrentPage === 0) {
                 return res.status(204).json({ message: `No users found on current page.`, data: users });
-            } else {
-                return res.status(200).json({ message: `Users found.`, data: users });
             }
+            return res.status(200).json({ message: `Users found.`, data: users });
         } catch (error) {
             return res.status(500).json({ message: `Could not fetch users.` });
         }
