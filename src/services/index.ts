@@ -1,13 +1,12 @@
-import { UserStore, TodoStore } from "../stores";
-// import { generateAuthURL, getTokenFromCode, authenticateToken } from "./OAuthService";
-import { OAuthService } from "./OAuthService";
 import { AuthService } from "./AuthService";
+import { userStore, todoStore } from "../stores";
+import { OAuthService } from "./OAuthService";
 import { UserService } from "./UserService";
 import { TodoService } from "./TodoService";
 
-const userService = new UserService(new UserStore());
-const todoService = new TodoService(new TodoStore());
-const authService = new AuthService(new UserStore());
+const userService = new UserService(userStore);
+const todoService = new TodoService(todoStore);
 const oAuthService = new OAuthService();
+const authService = new AuthService(userStore, oAuthService);
 
 export { authService, oAuthService, userService, todoService };

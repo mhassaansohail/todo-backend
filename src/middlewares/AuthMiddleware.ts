@@ -1,10 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { oAuthService } from '../services';
-import { authService } from '../services';
 
 export class AuthMiddleware {
+    oAuthService: any;
+    authService: any;
+    constructor(authService: any, oAuthService: any) {
+        this.authService = authService;
+        this.oAuthService = oAuthService;
+    }
 
-    public static authenticateUser = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+    public authenticateUser = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
         try {
             const authHeader = req.headers.authorization;
             if (!authHeader) {
@@ -15,11 +19,11 @@ export class AuthMiddleware {
                     return res.status(401).json({ error: "Invalid token provided." });
                 }
                 const token = authHeaderParts[1];
-                let isVerified = await AuthMiddleware.verifyJWTToken(token);
+                let isVerified = await this.verifyJWTToken(token);
                 if (isVerified) {
                     next();
                 } else {
-                    isVerified = await AuthMiddleware.verifyOAuthToken(token);
+                    isVerified = await this.verifyOAuthToken(token);
                     if (isVerified) {
                         next();
                     } else {
@@ -32,17 +36,17 @@ export class AuthMiddleware {
         }
     }
 
-    private static verifyOAuthToken = async (token: string): Promise<any> => {
+    private verifyOAuthToken = async (token: string): Promise<any> => {
         try {
-            return await oAuthService.verifyToken(token);
+            return await this.oAuthService.verifyToken(token);
         } catch (error) {
             return false;
         }
     }
 
-    private static verifyJWTToken = async (token: string): Promise<any> => {
+    private verifyJWTToken = async (token: string): Promise<any> => {
         try {
-            return await authService.verifyToken(token);
+            return await this.authService.verifyToken(token);
         } catch (error) {
             return false;
         }

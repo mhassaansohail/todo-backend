@@ -1,6 +1,8 @@
-import { UserRepository } from "./UserRepository";
-import { TodoRepository } from "./TodoRepository";
+import { TodoFactory, UserFactory } from "../domain/entityFactories";
 import { UserStore } from "./UserStore";
 import { TodoStore } from "./TodoStore";
 
-export { UserRepository, TodoRepository, UserStore, TodoStore };
+const userStore = new UserStore(new UserFactory())
+const todoStore = new TodoStore(new TodoFactory())
+
+export { userStore, todoStore };

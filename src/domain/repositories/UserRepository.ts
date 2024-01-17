@@ -1,5 +1,5 @@
 import { BaseRepository } from "./BaseRepository";
-import { User } from "types";
+import { User } from "../entities";
 
 export interface UserRepository extends BaseRepository<User> {
     create(user: User): Promise<User>;

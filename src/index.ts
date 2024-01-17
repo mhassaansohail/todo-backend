@@ -1,25 +1,24 @@
 import dotenv from 'dotenv';
 import { resolve } from 'path';
-dotenv.config({ path: resolve(__dirname, '../.env') });
-import express from 'express';
-import cors from 'cors';
-import { AuthRouter, UserRouter, TodoRouter } from './routers';
-import { AuthMiddleware } from './middlewares/AuthMiddleware';
+import { Command } from 'commander';
+import { startExpressApp } from './expressApp';
+import logger from './logger';
 
-const expressApp = express();
+dotenv.config({ path: resolve(__dirname, './.env') });
 
-expressApp.use(cors());
-expressApp.use(express.json());
-expressApp.use(express.urlencoded({ extended: true }));
 
-expressApp.use('/auth', AuthRouter);
-expressApp.use('/api/user', AuthMiddleware.authenticateUser, UserRouter);
-expressApp.use('/api/todo', AuthMiddleware.authenticateUser, TodoRouter);
+const program = new Command();
 
-const HTTP_PORT: string = String(process.env.HTTP_PORT);
+program
+    .option('-p, --port <port>', 'Port to run the server on', process.env.HTTP_PORT)
+    .parse(process.argv);
 
-expressApp.listen(HTTP_PORT, () => {
-    console.log(`Server running on port ${HTTP_PORT}`);
-});
+const options = program.opts();
+const port = options.port;
 
-export default expressApp;
+if (isNaN(port) || port <= 0 || port > 65535) {
+    logger.error('Invalid port number');
+    process.exit(1);
+}
+
+startExpressApp(logger, port);

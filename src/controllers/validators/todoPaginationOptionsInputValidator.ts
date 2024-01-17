@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Result, Ok, Err } from 'oxide.ts';
 
 export const todoPaginationOptionsInputSchema = z.object({
     offset: z.string({
@@ -20,3 +21,13 @@ export const todoPaginationOptionsInputSchema = z.object({
         invalid_type_error: "Description must be string",
     }).optional().default(""),
 });
+
+
+export const validateTodoPaginationOptions = (input: any): Result<any, Error> => {
+    try {
+        const searchParams = todoPaginationOptionsInputSchema.parse(input);
+        return Ok(searchParams);
+    } catch (error) {
+        return Err(new Error("Search params validation failed."));
+    }
+}

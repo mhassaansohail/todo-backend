@@ -1,3 +1,4 @@
+import { Result, Err, Ok } from 'oxide.ts';
 import { z } from 'zod';
 
 export const authCodeInputSchema = z.object({
@@ -18,3 +19,11 @@ export const authCodeInputSchema = z.object({
         invalid_type_error: "Code must be a string",
     }).min(1),
 }).strict();
+
+export const authInputValidator = (input: any): Result<any, Error> => {
+    try {
+        return Ok(authCodeInputSchema.parse(input));
+    } catch (error) {
+        return Err(new Error("Authentication code validation failed."));
+    }
+}

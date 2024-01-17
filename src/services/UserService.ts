@@ -1,35 +1,36 @@
-import { User } from "../types/User";
-import { UserRepository } from "../stores";
+import { User } from "../domain/entities";
 import { PaginatedCollection } from "../pagination";
+import { Ok, Err, Result } from "oxide.ts";
 
 export class UserService {
-    repository: UserRepository;
-    constructor(repoistory: UserRepository) {
+    repository: any;
+    constructor(repoistory: any) {
         this.repository = repoistory
     }
 
     async getUsers(offset: number, limit: number, conditionParams: Partial<User>) {
         try {
-            const usersAndCount = await this.repository.fetchAll(offset, limit, conditionParams);
-            return new PaginatedCollection(usersAndCount.rows, usersAndCount.count, offset, limit);
+            const totalUserRows = await this.repository.count(conditionParams);
+            const userRows = await this.repository.fetchAll(offset, limit, conditionParams);
+            return Result(new PaginatedCollection(userRows, totalUserRows, offset, limit));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
     async getUserById(userId: string) {
         try {
-            return await this.repository.fetchById(userId);
+            return Result(await this.repository.fetchById(userId));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
     async getUserByUsername(userName: string) {
         try {
-            return await this.repository.fetchByUsername(userName);
+            return Result(await this.repository.fetchByUsername(userName));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
@@ -38,14 +39,14 @@ export class UserService {
             const existingUserWithEmail = await this.repository.fetchByEmail(user.email);
             const existingUserWithUsername = await this.repository.fetchByUsername(user.userName);
             if (existingUserWithEmail) {
-                throw new Error("A user already exists with this email.");
+                return Err(new Error("A user already exists with this email."));
             }
             if (existingUserWithUsername) {
-                throw new Error("A user already exists with this username.");
+                return Err(new Error("A user already exists with this username."));
             }
-            return await this.repository.create(user);
+            return Result(await this.repository.create(user));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
@@ -53,19 +54,19 @@ export class UserService {
         try {
             const userExists = await this.repository.fetchById(userId);
             if (!userExists) {
-                throw new Error(`User with id: ${userId} does not exist.`);
+                return Err(new Error(`User with id: ${userId} does not exist.`));
             }
             const existingUserWithEmail = await this.repository.fetchByEmail(user.email);
             const existingUserWithUsername = await this.repository.fetchByUsername(user.userName);
             if (existingUserWithEmail && existingUserWithEmail.id === userId) {
-                throw new Error("A user already exists with this email.");
+                return Err(new Error("A user already exists with this email."));
             }
             if (existingUserWithUsername && existingUserWithUsername.id === userId) {
-                throw new Error("A user already exists with this username.");
+                return Err(new Error("A user already exists with this username."));
             }
-            return await this.repository.update(userId, user);
+            return Result(await this.repository.update(userId, user));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
@@ -73,11 +74,11 @@ export class UserService {
         try {
             const userExists = await this.repository.fetchById(userId);
             if (!userExists) {
-                throw new Error(`User with id: ${userId} does not exist.`);
+                return Err(new Error(`User with id: ${userId} does not exist.`));
             }
-            return await this.repository.remove(userId);
+            return Result(await this.repository.remove(userId));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 }

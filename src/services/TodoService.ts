@@ -1,35 +1,36 @@
-import { Todo } from "../types";
-import { TodoRepository } from "../stores";
+import { Todo } from "../domain/entities";
 import { PaginatedCollection } from "../pagination";
+import { Result, Ok, Err } from "oxide.ts";
 
 export class TodoService {
-    repository: TodoRepository;
-    constructor(repoistory: TodoRepository) {
+    repository: any;
+    constructor(repoistory: any) {
         this.repository = repoistory
     }
 
     async getTodos(offset: number, limit: number, conditionParams: Partial<Todo>) {
         try {
-            const todoRowsAndCount = await this.repository.fetchAll(offset, limit, conditionParams);
-            return new PaginatedCollection(todoRowsAndCount.rows, todoRowsAndCount.count, offset, limit);
+            const totalTodoRows = await this.repository.count(conditionParams);
+            const todoRows = await this.repository.fetchAll(offset, limit, conditionParams);
+            return Result(new PaginatedCollection(todoRows, totalTodoRows, offset, limit));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
     async getTodoById(todoId: string) {
         try {
-            return await this.repository.fetchById(todoId);
+            return Result(await this.repository.fetchById(todoId));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
     async createTodo(todo: Todo) {
         try {
-            return await this.repository.add(todo);
+            return Result(await this.repository.add(todo));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
@@ -37,11 +38,11 @@ export class TodoService {
         try {
             const todoExists = await this.repository.fetchById(todoId);
             if (!todoExists) {
-                throw new Error(`Todo with id: ${todoId} does not exist.`);
+                return Err(new Error(`Todo with id: ${todoId} does not exist.`));
             }
-            return await this.repository.update(todoId, todo);
+            return Result(await this.repository.update(todoId, todo));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 
@@ -49,11 +50,11 @@ export class TodoService {
         try {
             const todoExists = await this.repository.fetchById(todoId);
             if (!todoExists) {
-                throw new Error(`Todo with id: ${todoId} does not exist.`);
+                return Err(new Error(`Todo with id: ${todoId} does not exist.`));
             }
-            return await this.repository.remove(todoId);
+            return Result(await this.repository.remove(todoId));
         } catch (error) {
-            throw error;
+            return Err(error);
         }
     }
 }

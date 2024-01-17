@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Result, Ok, Err } from 'oxide.ts';
 
 export const userPaginationOptionsInputSchema = z.object({
     offset: z.string({
@@ -23,3 +24,12 @@ export const userPaginationOptionsInputSchema = z.object({
         invalid_type_error: "Email must be string",
     }).optional().default(""),
 });
+
+export const validateUserPaginationOptions = (input: any): Result<any, Error> => {
+    try {
+        const searchParams = userPaginationOptionsInputSchema.parse(input);
+        return Ok(searchParams);
+    } catch (error) {
+        return Err(new Error("Search params validation failed."));
+    }
+}

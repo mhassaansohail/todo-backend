@@ -1,3 +1,4 @@
+import { Result, Ok, Err } from 'oxide.ts';
 import { google } from 'googleapis';
 import fs from 'fs';
 
@@ -50,19 +51,18 @@ export class OAuthService {
     }
     async generateAuthURL(scopes: string[]) {
         try {
-            return this.oAuthClient.generateAuthUrl({ access_type: 'offline', scope: scopes });
+            return Ok(this.oAuthClient.generateAuthUrl({ access_type: 'offline', scope: scopes }));
         } catch (error) {
-            throw new Error('Error generating authenticaion URL for the given scopes.');
+            return Err(new Error('Error generating authenticaion URL for the given scopes.'));
         }
     }
 
     async getTokenFromCode(code: string) {
         try {
             const { tokens } = await this.oAuthClient.getToken(code);
-            this.oAuthClient.setCredentials(tokens);
-            return tokens;
+            return Ok(this.oAuthClient.setCredentials(tokens));
         } catch (error) {
-            throw new Error('Error exchanging code for token');
+            return Err(new Error('Error exchanging code for token'));
         }
     }
 
@@ -73,10 +73,10 @@ export class OAuthService {
                 audience: this.oAuthClient._clientId,
             });
             if (ticket) {
-                return ticket.getPayload();
+                return Ok(ticket.getPayload());
             }
         } catch (error) {
-            throw new Error('Invalid token');
+            return Err(new Error('Invalid token'));
           }
     }
 }

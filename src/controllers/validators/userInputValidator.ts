@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Ok, Err } from 'oxide.ts';
 
 export const userInputSchema = z.object({
     id: z.string({
@@ -25,3 +26,12 @@ export const userInputSchema = z.object({
         invalid_type_error: "Age must be a number",
     }).positive(),
 }).strict();
+
+export const validateUserInput = (input: any) => {
+    try {
+        const userInput = userInputSchema.parse(input);
+        return Ok(userInput);
+    } catch (error) {
+        return Err("User input validation failed.");
+    }
+}
