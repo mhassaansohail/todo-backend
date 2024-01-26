@@ -6,7 +6,12 @@ import { inject, injectable } from 'tsyringe';
 
 @injectable()
 export class AuthController {
-    constructor(@inject("Logger") private logger: Logger, @inject("AuthService") private service: AuthService) { }
+    private logger: Logger;
+    private service: AuthService;
+    constructor(@inject("Logger") logger: Logger, @inject("AuthService") service: AuthService) {
+        this.logger = logger;
+        this.service = service;
+     }
 
     login = async (req: Request, res: Response): Promise<Response> => {
         const bodyKeysCount = Object.keys(req.body).length;

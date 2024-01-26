@@ -1,5 +1,5 @@
 import express from 'express';
-import { authController } from '../../APP/Infrastructure/IoC/container';
+import { authController } from '../../APP/Infrastructure/TsyringeProvider/container';
 
 const authRouter = express.Router();
 authRouter.post('/login', authController.login);

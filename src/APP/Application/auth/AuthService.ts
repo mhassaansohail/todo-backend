@@ -1,14 +1,30 @@
-import { Ok, Err, match } from "oxide.ts";
-import { OAuthService } from "../../Infrastructure/services/OAuthService";
-import { comparePassword } from "../../Infrastructure/services/EncryptionService";
-
+import { Ok, Err } from "oxide.ts";
 import { UserRepository } from "../../Domain/repositories/UserRepository";
 import { inject, injectable } from "tsyringe";
-import { JWTService } from "../../Infrastructure/services/JWTService";
+import { IJWTAuthService } from "./IJWTAuthService";
+import { IOAuthService } from "./IOAuthService";
+import { IEncryptionService } from "./IEncryptionService";
+import { Credentials } from "../../Domain/valueObjects/user/Credentials";
 
 @injectable()
 export class AuthService {
-    constructor(@inject("UserRepository") private repository: UserRepository, @inject("JWTService") private jwtService: JWTService, @inject("OAuthService") private oAuthService: OAuthService) { }
+    private repository: UserRepository;
+    private encryptionService: IEncryptionService;
+    private jwtService: IJWTAuthService;
+    private oAuthService: IOAuthService;
+
+    constructor(
+        @inject("UserRepository") repository: UserRepository,
+        @inject("JWTService") jwtService: IJWTAuthService,
+        @inject("OAuthService") oAuthService: IOAuthService,
+        @inject("EncryptionService") encryptionService: IEncryptionService
+    ) {
+        this.repository = repository;
+        this.encryptionService = encryptionService;
+        this.jwtService = jwtService;
+        this.oAuthService = oAuthService;
+
+    }
 
     async loginWithOAuth(): Promise<Ok<string> | Err<Error>> {
         try {
@@ -25,7 +41,8 @@ export class AuthService {
 
     async loginByCredentials(userName: string, password: string): Promise<Ok<string> | Err<Error>> {
         try {
-            const isValidUserResult = await this.validateUser(userName, password);
+            const userCredentials = new Credentials(userName, password);
+            const isValidUserResult = await this.validateUser(userCredentials);
             if (isValidUserResult.isErr()) {
                 const { message } = isValidUserResult.unwrapErr();
                 return Err(new Error(message));
@@ -61,10 +78,10 @@ export class AuthService {
         }
     }
 
-    private async validateUser(userName: string, password: string): Promise<Ok<boolean> | Err<Error>> {
+    private async validateUser(userCredentials: Credentials): Promise<Ok<boolean> | Err<Error>> {
         try {
-            const user = await this.repository.fetchByUsername(userName);
-            return Ok(comparePassword(password, String(user?.password)));
+            const user = await this.repository.fetchByUsername(userCredentials.username);
+            return Ok(this.encryptionService.comparePassword(userCredentials.password, String(user?.password)));
         } catch (error: any) {
             return Err(new Error(error.message));
         }

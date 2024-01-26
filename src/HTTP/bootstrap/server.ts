@@ -1,12 +1,14 @@
 import app from "./app";
-// import logger from "../APP/Infrastructure/IoC/container";
 import { addRoutes } from "./routes";
+import { Logger } from "../../APP/Infrastructure/logger/Logger";
+
+const logger = new Logger(); 
 
 addRoutes(app);
 const httpPort = process.env.HTTP_PORT;
 
 export const startServer = (port?: string) => {
     app.listen(port || httpPort, () => {
-        // logger.info(`Server running on port ${port || httpPort}`);
+        logger.info(`Server is running on port: ${httpPort || port}.`);
     });
 }

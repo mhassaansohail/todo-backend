@@ -1,8 +1,8 @@
-import { Result, Ok, Err } from 'oxide.ts';
+import { Ok, Err } from 'oxide.ts';
 import { google } from 'googleapis';
 import fs from 'fs';
-import { Logger } from '../logger/Logger';
-import { container, inject, injectable } from 'tsyringe';
+import { injectable } from 'tsyringe';
+import { IOAuthService } from 'APP/Application/auth/IOAuthService';
 
 const oAuthKeysFilePath = String(process.env.OAUTH_KEYS);
 
@@ -47,11 +47,10 @@ const getOAuthClient = () => {
 }
 
 @injectable()
-export class OAuthService {
-    oAuthClient: any
-    constructor(@inject("Logger") private logger: Logger) {
+export class OAuthService implements IOAuthService {
+    private oAuthClient: any
+    constructor() {
         this.oAuthClient = getOAuthClient();
-        // this.logger = logger;
     }
     async generateAuthURL(scopes: string[]): Promise<Err<Error> | Ok<string>> {
         try {

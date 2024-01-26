@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import cors from 'cors';
-import '../APP/Infrastructure/IoC/container';
+import '../../APP/Infrastructure/TsyringeProvider/container';
 
 const app = express();
 app.use(cors());

@@ -24,6 +24,7 @@ export class MySQLTodoRepository implements TodoRepository {
                 where: conditions
             });
         } catch (error: any) {
+            this.logger.error(error.message);
             throw new Error(error.message);
         }
     }
@@ -43,6 +44,7 @@ export class MySQLTodoRepository implements TodoRepository {
             });
             return fetchedTodos.map(todoObj => Todo.createByObject(todoObj));
         } catch (error: any) {
+            this.logger.error(error.message);
             throw new Error(error.message);
         }
 
@@ -58,6 +60,7 @@ export class MySQLTodoRepository implements TodoRepository {
             }
             throw new Error("Todo not found.");
         } catch (error: any) {
+            this.logger.error(error.message);
             throw new Error(error.message);
         }
     }
@@ -69,6 +72,7 @@ export class MySQLTodoRepository implements TodoRepository {
             });
             return Todo.createByObject(addedTodo);
         } catch (error: any) {
+            this.logger.error(error.message);
             throw new Error(error.message);
         }
     }
@@ -81,6 +85,7 @@ export class MySQLTodoRepository implements TodoRepository {
             });
             return Todo.createByObject(updateTodo);
         } catch (error: any) {
+            this.logger.error(error.message);
             throw new Error(error.message);
         }
     }
@@ -92,6 +97,7 @@ export class MySQLTodoRepository implements TodoRepository {
             });
             return Todo.createByObject(removedTodo);
         } catch (error: any) {
+            this.logger.error(error.message);
             throw new Error(error.message);
         }
     }

@@ -1,15 +1,18 @@
 import { Request, Response } from "express";
 import { validateUserIdParam, validateUserInput, validateUserPaginationOptions } from "./validators";
 import bcrypt from 'bcrypt';
-import { userService } from "../../APP/Infrastructure/IoC/container";
+import { UserService } from "../../APP/Application/user/UserService";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
 import { UserAttributes } from "../../APP/Domain/types/user";
 
 @injectable()
 export class UserController {
-    constructor(@inject("Logger") private logger: Logger) {
+    private logger: Logger;
+    private service: UserService
+    constructor(@inject("Logger") logger: Logger, @inject("UserService") service: UserService) {
         this.logger = logger;
+        this.service = service;
     }
 
     getUsers = async (req: Request, res: Response): Promise<Response> => {
@@ -20,7 +23,7 @@ export class UserController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const { offset, limit, name, email, userName } = queryParamsValidation.unwrap();
-        const fetchedUsersResult = await userService.getUsers(offset, limit, { name, email, userName });
+        const fetchedUsersResult = await this.service.getUsers(offset, limit, { name, email, userName });
         if (fetchedUsersResult.isErr()) {
             const { message } = fetchedUsersResult.unwrapErr();
             this.logger.error(message);
@@ -38,7 +41,7 @@ export class UserController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const { userId } = userIdValidation.unwrap();
-        const fetchedUserResult = await userService.getUserById(userId);
+        const fetchedUserResult = await this.service.getUserById(userId);
         if (fetchedUserResult.isErr()) {
             const { message } = fetchedUserResult.unwrapErr()
             this.logger.error(message);
@@ -60,7 +63,7 @@ export class UserController {
         const password = userInput.password;
         const hashedPassword = bcrypt.hashSync(password, Number(saltRounds));
         userInput.password = hashedPassword;
-        const createdUserResult = await userService.createUser(userInput as UserAttributes);
+        const createdUserResult = await this.service.createUser(userInput as UserAttributes);
         if (createdUserResult.isErr()) {
             const { message } = createdUserResult.unwrapErr();
             this.logger.error(message);
@@ -89,7 +92,7 @@ export class UserController {
         const password = userInput.password;
         const hashedPassword = bcrypt.hashSync(password, Number(saltRounds));
         userInput.password = hashedPassword;
-        const updatedUserResult = await userService.updateUser(userId, { userId, ...userInput });
+        const updatedUserResult = await this.service.updateUser(userId, { userId, ...userInput });
         if (updatedUserResult.isErr()) {
             const { message } = updatedUserResult.unwrapErr();
             this.logger.error(message);
@@ -107,7 +110,7 @@ export class UserController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const { userId } = userIdValidation.unwrap();
-        const deletedUserResult = await userService.deleteUser(userId);
+        const deletedUserResult = await this.service.deleteUser(userId);
         if (deletedUserResult.isErr()) {
             const { message } = deletedUserResult.unwrapErr();
             this.logger.error(message);

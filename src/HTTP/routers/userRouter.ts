@@ -1,5 +1,5 @@
 import express from 'express';
-import { userController } from '../../APP/Infrastructure/IoC/container';
+import { userController } from '../../APP/Infrastructure/TsyringeProvider/container';
 
 const userRouter = express.Router();
 

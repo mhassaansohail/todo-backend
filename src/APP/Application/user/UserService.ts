@@ -4,16 +4,15 @@ import { UserAttributes } from "../../Domain/types/user";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err } from "oxide.ts";
 import { inject, injectable } from "tsyringe";
-import { Logger } from "../../Infrastructure/logger/Logger";
 
 @injectable()
 export class UserService {
-    constructor(@inject("Logger") private logger: Logger, @inject("UserRepository") private repository: UserRepository) {
-        this.logger = logger;
+    private repository: UserRepository;
+    constructor(@inject("UserRepository") repository: UserRepository) {
         this.repository = repository;
     }
 
-    async getUsers(offset: number, limit: number, conditionParams: Partial<UserAttributes>) {
+    async getUsers(offset: number, limit: number, conditionParams: Partial<UserAttributes>): Promise<Ok<PaginatedCollection<User>> | Err<Error>> {
         try {
             const totalUserRows = await this.repository.count(conditionParams);
             const userRows = await this.repository.fetchAll(offset, limit, conditionParams);
@@ -23,7 +22,7 @@ export class UserService {
         }
     }
 
-    async getUserById(userId: string) {
+    async getUserById(userId: string): Promise<Ok<User> | Err<Error>> {
         try {
             return Ok(await this.repository.fetchById(userId));
         } catch (error: any) {
@@ -39,7 +38,7 @@ export class UserService {
         }
     }
 
-    async createUser(user: UserAttributes) {
+    async createUser(user: UserAttributes): Promise<Ok<User> | Err<Error>> {
         try {
             const userEntity = User.createByObject(user);
             return Ok(await this.repository.create(userEntity));
@@ -48,7 +47,7 @@ export class UserService {
         }
     }
 
-    async updateUser(userId: string, user: UserAttributes) {
+    async updateUser(userId: string, user: UserAttributes): Promise<Ok<User> | Err<Error>> {
         try {
             const userEntity = User.createByObject(user);
             return Ok(await this.repository.update(userId, userEntity));
@@ -57,7 +56,7 @@ export class UserService {
         }
     }
 
-    async deleteUser(userId: string) {
+    async deleteUser(userId: string): Promise<Ok<User> | Err<Error>> {
         try {
             return Ok(await this.repository.remove(userId));
         } catch (error: any) {

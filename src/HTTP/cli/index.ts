@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { Command } from 'commander';
-import { startServer } from '../server';
+import { startServer } from '../bootstrap/server';
 
 const program = new Command();
 

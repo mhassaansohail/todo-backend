@@ -7,8 +7,8 @@ const prisma = new PrismaClient();
 
 @injectable()
 export class MySQLUserRepository implements UserRepository {
-    
-    constructor(@inject("Logger") private logger: Logger) {
+    private logger: Logger;
+    constructor(@inject("Logger") logger: Logger) {
         this.logger = logger;
     }
 

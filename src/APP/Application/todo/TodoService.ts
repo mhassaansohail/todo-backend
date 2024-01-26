@@ -3,17 +3,15 @@ import Todo from "../../Domain/entities/Todo";
 import { TodoRepository } from "../../Domain/repositories/TodoRepository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err } from "oxide.ts";
-import { Logger } from "../../Infrastructure/logger/Logger";
 
 @injectable()
 export class TodoService {
-
-    constructor(@inject("Logger") private logger: Logger, @inject("TodoRepository") private repository: TodoRepository) {
-        this.logger = logger;
+    private repository: TodoRepository;
+    constructor(@inject("TodoRepository") repository: TodoRepository) {
         this.repository = repository;
     }
 
-    async getTodos(offset: number, limit: number, conditionParams: Partial<Todo>) {
+    async getTodos(offset: number, limit: number, conditionParams: Partial<Todo>): Promise<Ok<PaginatedCollection<Todo>> | Err<Error>> {
         try {
             const totalTodoRows = await this.repository.count(conditionParams);
             const todoRows = await this.repository.fetchAll(offset, limit, conditionParams);
@@ -23,7 +21,7 @@ export class TodoService {
         }
     }
 
-    async getTodoById(todoId: string) {
+    async getTodoById(todoId: string): Promise<Ok<Todo> | Err<Error>> {
         try {
             return Ok(await this.repository.fetchById(todoId));
         } catch (error: any) {
@@ -31,7 +29,7 @@ export class TodoService {
         }
     }
 
-    async addTodo(todo: Todo) {
+    async addTodo(todo: Todo): Promise<Ok<Todo> | Err<Error>> {
         try {
             const todoEntity = Todo.createByObject(todo)
             return Ok(await this.repository.add(todoEntity));
@@ -40,7 +38,7 @@ export class TodoService {
         }
     }
 
-    async updateTodo(todoId: string, todo: Todo) {
+    async updateTodo(todoId: string, todo: Todo): Promise<Ok<Todo> | Err<Error>> {
         try {
             const todoEntity = Todo.createByObject(todo)
             return Ok(await this.repository.update(todoId, todoEntity));
@@ -49,7 +47,7 @@ export class TodoService {
         }
     }
 
-    async deleteTodo(todoId: string) {
+    async deleteTodo(todoId: string): Promise<Ok<Todo> | Err<Error>> {
         try {
             return Ok(await this.repository.remove(todoId));
         } catch (error: any) {

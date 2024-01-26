@@ -1,5 +1,5 @@
 import express from 'express';
-import { todoController } from '../../APP/Infrastructure/IoC/container';
+import { todoController } from '../../APP/Infrastructure/TsyringeProvider/container';
 
 const todoRouter = express.Router();
 

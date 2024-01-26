@@ -5,8 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "typeRoots": [
-      "node_modules/@types",
-      "interfaces/@types"
+      "node_modules/@types"
     ],
     "baseUrl": "./src",
     "lib": [
@@ -20,5 +19,6 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
-  }
+  },
+  "exclude": ["src/fakers/**", "src/seed/**"]
 }
