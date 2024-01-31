@@ -1,6 +1,6 @@
 import { TodoAttributes } from "../types/todo";
 
-class Todo {
+class Todo implements TodoAttributes {
     todoId: string;
     title: string;
     description: string;

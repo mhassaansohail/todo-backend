@@ -2,7 +2,7 @@ import { Ok, Err } from 'oxide.ts';
 import { google } from 'googleapis';
 import fs from 'fs';
 import { injectable } from 'tsyringe';
-import { IOAuthService } from 'APP/Application/auth/IOAuthService';
+import { IOAuthService } from '../../Application/contracts/IOAuthService';
 
 const oAuthKeysFilePath = String(process.env.OAUTH_KEYS);
 

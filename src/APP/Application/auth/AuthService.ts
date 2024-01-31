@@ -1,9 +1,9 @@
 import { Ok, Err } from "oxide.ts";
 import { UserRepository } from "../../Domain/repositories/UserRepository";
 import { inject, injectable } from "tsyringe";
-import { IJWTAuthService } from "./IJWTAuthService";
-import { IOAuthService } from "./IOAuthService";
-import { IEncryptionService } from "./IEncryptionService";
+import { IJWTAuthService } from "../contracts/IJWTAuthService";
+import { IOAuthService } from "../contracts/IOAuthService";
+import { IEncryptionService } from "../contracts/IEncryptionService";
 import { Credentials } from "../../Domain/valueObjects/user/Credentials";
 
 @injectable()
@@ -42,7 +42,7 @@ export class AuthService {
     async loginByCredentials(userName: string, password: string): Promise<Ok<string> | Err<Error>> {
         try {
             const userCredentials = new Credentials(userName, password);
-            const isValidUserResult = await this.validateUser(userCredentials);
+            const isValidUserResult = await this.verifyUser(userCredentials._username, userCredentials._password);
             if (isValidUserResult.isErr()) {
                 const { message } = isValidUserResult.unwrapErr();
                 return Err(new Error(message));
@@ -78,10 +78,10 @@ export class AuthService {
         }
     }
 
-    private async validateUser(userCredentials: Credentials): Promise<Ok<boolean> | Err<Error>> {
+    private async verifyUser(userName: string, password: string): Promise<Ok<boolean> | Err<Error>> {
         try {
-            const user = await this.repository.fetchByUsername(userCredentials.username);
-            return Ok(this.encryptionService.comparePassword(userCredentials.password, String(user?.password)));
+            const user = await this.repository.fetchByUserNameOrEmail(userName);
+            return Ok(this.encryptionService.comparePassword(password, String(user?._password)));
         } catch (error: any) {
             return Err(new Error(error.message));
         }

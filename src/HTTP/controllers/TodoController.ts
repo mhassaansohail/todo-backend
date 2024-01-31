@@ -4,6 +4,7 @@ import { injectable, inject } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
 import { TodoAttributes } from "../../APP/Domain/types/todo";
 import { TodoService } from "../../APP/Application/todo/TodoService";
+import { TodoDTO } from "../DTO/todo.dto";
 
 @injectable()
 export class TodoController {
@@ -46,7 +47,7 @@ export class TodoController {
             return res.status(204).json({ status: "Unsuccesful", message });
         }
         const fetchedTodo = fetchedTodoResult.unwrap();
-        return res.status(200).json({ status: "Succesful", data: fetchedTodo });
+        return res.status(200).json({ status: "Succesful", data: TodoDTO.toDTO(fetchedTodo) });
     }
 
     addTodo = async (req: Request, res: Response): Promise<Response> => {
@@ -65,7 +66,7 @@ export class TodoController {
             return res.status(400).json({ status: "Unsuccesful", message });
         }
         const createdTodo = createdTodoResult.unwrap();
-        return res.status(201).json({ status: "Succesful", data: createdTodo });
+        return res.status(201).json({ status: "Succesful", data: TodoDTO.toDTO(createdTodo) });
     }
 
     updateTodo = async (req: Request, res: Response): Promise<Response> => {
@@ -90,8 +91,7 @@ export class TodoController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        const updatedTodo = updatedTodoResult.unwrap();
-        return res.status(200).json({ status: "Unsuccesful", data: updatedTodo });
+        return res.status(200).json({ status: "Succesful", data: TodoDTO.toDTO(updatedTodoResult.unwrap()) });
     }
 
     deleteTodo = async (req: Request, res: Response): Promise<Response> => {
@@ -108,7 +108,6 @@ export class TodoController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        const deletedTodo = deletedTodoResult.unwrap();
-        return res.status(200).json({ status: "Unsuccesful", data: deletedTodo });
+        return res.status(200).json({ status: "Succesful", data: TodoDTO.toDTO(deletedTodoResult.unwrap()) });
     }
 }

@@ -17,8 +17,7 @@ export class MySQLUserRepository implements UserRepository {
             const conditions = {
                 OR: [
                     { name: { contains: queryParams.name } },
-                    { email: { contains: queryParams.email } },
-                    { userName: { contains: queryParams.userName } },
+                    { email: { contains: queryParams.email } }
                 ],
             }
             const totalRows = await prisma.user.count({
@@ -36,8 +35,7 @@ export class MySQLUserRepository implements UserRepository {
             const conditions = {
                 OR: [
                     { name: { contains: queryParams.name } },
-                    { email: { contains: queryParams.email } },
-                    { userName: { contains: queryParams.userName } },
+                    { email: { contains: queryParams.email } }
                 ],
             }
             const fetchedUsers = await prisma.user.findMany({
@@ -68,7 +66,7 @@ export class MySQLUserRepository implements UserRepository {
         }
     }
 
-    async fetchByUsernameOrEmail(userName: string, email: string): Promise<User> {
+    async fetchByUserNameOrEmail(userName?: string, email?: string): Promise<User> {
         try {
             const fetchedUser = await prisma.user.findUnique({
                 where: {
@@ -79,6 +77,7 @@ export class MySQLUserRepository implements UserRepository {
             if (fetchedUser !== null) {
                 return User.createByObject(fetchedUser);
             }
+            this.logger.error("User not found.");
             throw new Error("User not found.");
         } catch (error: any) {
             this.logger.error(error.message);
@@ -86,25 +85,32 @@ export class MySQLUserRepository implements UserRepository {
         }
     }
 
-    async fetchByUsername(userName: string): Promise<User> {
-        try {
-            const fetchedUser = await prisma.user.findUnique({
-                where: { userName }
-            });
-            if (fetchedUser !== null) {
-                return User.createByObject(fetchedUser);
-            }
-            throw new Error("User not found.");
-        } catch (error: any) {
-            this.logger.error(error.message);
-            throw new Error(error.message);
-        }
-    }
+    // async fetchByUsername(userName: string): Promise<User> {
+    //     try {
+    //         const fetchedUser = await prisma.user.findUnique({
+    //             where: { userName }
+    //         });
+    //         if (fetchedUser !== null) {
+    //             return User.createByObject(fetchedUser);
+    //         }
+    //         throw new Error("User not found.");
+    //     } catch (error: any) {
+    //         this.logger.error(error.message);
+    //         throw new Error(error.message);
+    //     }
+    // }
 
     async create(user: User): Promise<User> {
         try {
             const createdUser = await prisma.user.create({
-                data: user
+                data: {
+                    userId: user.userId,
+                    name: user.name,
+                    email: user.email,
+                    userName: user._userName,
+                    password: user._password,
+                    age: user.age
+                }
             });
             return User.createByObject(createdUser);
         } catch (error: any) {
@@ -117,7 +123,13 @@ export class MySQLUserRepository implements UserRepository {
         try {
             const updatedUser = await prisma.user.update({
                 where: { userId },
-                data: user
+                data: {
+                    name: user.name,
+                    email: user.email,
+                    userName: user._userName,
+                    password: user._password,
+                    age: user.age
+                }
             });
             return User.createByObject(updatedUser);
         } catch (error: any) {

@@ -5,6 +5,7 @@ import { UserService } from "../../APP/Application/user/UserService";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
 import { UserAttributes } from "../../APP/Domain/types/user";
+import { UserDTO } from "../DTO/user.dto";
 
 @injectable()
 export class UserController {
@@ -47,8 +48,7 @@ export class UserController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        const fetchedUser = fetchedUserResult.unwrap();
-        return res.status(200).json({ status: "Succesful", data: fetchedUser });
+        return res.status(200).json({ status: "Succesful", data: UserDTO.toDTO(fetchedUserResult.unwrap()) });
     }
 
     createUser = async (req: Request, res: Response): Promise<Response> => {
@@ -69,8 +69,7 @@ export class UserController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        const createdUser = createdUserResult.unwrap();
-        return res.status(201).json({ status: "Succesful", data: createdUser });
+        return res.status(201).json({ status: "Succesful", data: UserDTO.toDTO(createdUserResult.unwrap()) });
     }
 
     updateUser = async (req: Request, res: Response): Promise<Response> => {
@@ -98,8 +97,7 @@ export class UserController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        const updatedUser = updatedUserResult.unwrap();
-        return res.status(200).json({ status: "Succesful", data: updatedUser });
+        return res.status(200).json({ status: "Succesful", data: UserDTO.toDTO(updatedUserResult.unwrap()) });
     }
 
     deleteUser = async (req: Request, res: Response): Promise<Response> => {
@@ -116,8 +114,7 @@ export class UserController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        const deletedUser = deletedUserResult.unwrap();
-        return res.status(200).json({ status: "Succesful", data: deletedUser });
+        return res.status(200).json({ status: "Succesful", data: UserDTO.toDTO(deletedUserResult.unwrap()) });
     }
 
 }

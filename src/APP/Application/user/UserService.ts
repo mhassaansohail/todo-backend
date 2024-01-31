@@ -4,12 +4,15 @@ import { UserAttributes } from "../../Domain/types/user";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err } from "oxide.ts";
 import { inject, injectable } from "tsyringe";
+import { UniqueIDGenerator } from "../contracts/UniqueIDGenerator";
 
 @injectable()
 export class UserService {
     private repository: UserRepository;
-    constructor(@inject("UserRepository") repository: UserRepository) {
+    private idGenerator: UniqueIDGenerator;
+    constructor(@inject("UniqueIDGenerator") idGenerator: UniqueIDGenerator, @inject("UserRepository") repository: UserRepository) {
         this.repository = repository;
+        this.idGenerator = idGenerator;
     }
 
     async getUsers(offset: number, limit: number, conditionParams: Partial<UserAttributes>): Promise<Ok<PaginatedCollection<User>> | Err<Error>> {
@@ -32,7 +35,7 @@ export class UserService {
 
     async getUserByUsername(userName: string) {
         try {
-            return Ok(await this.repository.fetchByUsername(userName));
+            return Ok(await this.repository.fetchByUserNameOrEmail(userName));
         } catch (error: any) {
             return Err(new Error(error.message));
         }
@@ -40,7 +43,9 @@ export class UserService {
 
     async createUser(user: UserAttributes): Promise<Ok<User> | Err<Error>> {
         try {
-            const userEntity = User.createByObject(user);
+            const userId = this.idGenerator.getUniqueID();
+            user.userId = userId;
+            const userEntity = User.createByObject({...user});
             return Ok(await this.repository.create(userEntity));
         } catch (error: any) {
             return Err(new Error(error.message));

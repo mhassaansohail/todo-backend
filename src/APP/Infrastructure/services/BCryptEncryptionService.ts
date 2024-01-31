@@ -1,4 +1,4 @@
-import { IEncryptionService } from 'APP/Application/auth/IEncryptionService';
+import { IEncryptionService } from '../../Application/contracts/IEncryptionService';
 import bcrypt from 'bcrypt'
 const saltRounds = String(process.env.SALT_ROUNDS);
 

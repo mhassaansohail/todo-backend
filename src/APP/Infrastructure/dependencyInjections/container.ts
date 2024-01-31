@@ -13,6 +13,7 @@ import { TodoService } from "../../Application/todo/TodoService";
 import { MySQLUserRepository } from "../repositories/MySqlRepositories/UserRepository";
 import { MySQLTodoRepository } from "../repositories/MySqlRepositories/TodoRepository";
 import { BCryptEncryptionService } from "../services/BCryptEncryptionService";
+import { UUIDGenerator } from "../services/UUIDGenerator";
 
 container.register("Logger", { useClass: Logger });
 container.register("AuthService", { useClass: AuthService });
@@ -21,6 +22,7 @@ container.register("OAuthService", { useClass: OAuthService });
 container.register("JWTService", { useClass: JWTService });
 container.register("UserRepository", { useClass: MySQLUserRepository });
 container.register("TodoRepository", { useClass: MySQLTodoRepository });
+container.register("UniqueIDGenerator", { useClass: UUIDGenerator });
 container.register("UserService", { useClass: UserService });
 container.register("TodoService", { useClass: TodoService });
 

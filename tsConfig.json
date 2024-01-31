@@ -20,5 +20,5 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "exclude": ["src/fakers/**", "src/seed/**"]
+  "exclude": ["src/fakers/**", "prisma/seed/**"]
 }

@@ -13,19 +13,19 @@ export class InvalidAgeException extends BaseException {
 }
 
 export class InvalidUserNameException extends BaseException {
-    constructor(message: string) {
-        super(message);
+    constructor() {
+        super("UserName provided is invalid.");
     }
 }
 
 export class InvalidPasswordException extends BaseException {
-    constructor(message: string) {
-        super(message);
+    constructor() {
+        super("Password provided is invalid.");
     }
 }
 
 export class InvalidCredentialsException extends BaseException {
-    constructor(message: string) {
-        super(message);
+    constructor() {
+        super("Credentials provided are invalid.");
     }
 }

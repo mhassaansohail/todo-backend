@@ -3,12 +3,16 @@ import Todo from "../../Domain/entities/Todo";
 import { TodoRepository } from "../../Domain/repositories/TodoRepository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err } from "oxide.ts";
+import { UniqueIDGenerator } from "../contracts/UniqueIDGenerator";
+
 
 @injectable()
 export class TodoService {
     private repository: TodoRepository;
-    constructor(@inject("TodoRepository") repository: TodoRepository) {
+    private idGenerator: UniqueIDGenerator;
+    constructor(@inject("UniqueIDGenerator") idGenerator: UniqueIDGenerator, @inject("TodoRepository") repository: TodoRepository) {
         this.repository = repository;
+        this.idGenerator = idGenerator;
     }
 
     async getTodos(offset: number, limit: number, conditionParams: Partial<Todo>): Promise<Ok<PaginatedCollection<Todo>> | Err<Error>> {
@@ -31,7 +35,9 @@ export class TodoService {
 
     async addTodo(todo: Todo): Promise<Ok<Todo> | Err<Error>> {
         try {
-            const todoEntity = Todo.createByObject(todo)
+            const todoId = this.idGenerator.getUniqueID();
+            todo.todoId = todoId;
+            const todoEntity = Todo.createByObject({ ...todo })
             return Ok(await this.repository.add(todoEntity));
         } catch (error: any) {
             return Err(new Error(error.message));

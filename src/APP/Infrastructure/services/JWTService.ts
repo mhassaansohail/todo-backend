@@ -1,4 +1,4 @@
-import { IJWTAuthService } from "APP/Application/auth/IJWTAuthService";
+import { IJWTAuthService } from "../../Application/contracts/IJWTAuthService";
 import jwt from "jsonwebtoken"
 import { Err, Ok } from "oxide.ts";
 const secretKey = String(process.env.SECRET_KEY);
