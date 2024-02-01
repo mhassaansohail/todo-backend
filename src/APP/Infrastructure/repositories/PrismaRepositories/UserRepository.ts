@@ -3,10 +3,11 @@ import User from "../../../Domain/entities/User";
 import { UserRepository } from "../../../Domain/repositories/UserRepository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../logger/Logger";
+import { UserDTO } from "../../../shared/DTO/user.dto";
 const prisma = new PrismaClient();
 
 @injectable()
-export class MySQLUserRepository implements UserRepository {
+export class PrismaUserRepository implements UserRepository {
     private logger: Logger;
     constructor(@inject("Logger") logger: Logger) {
         this.logger = logger;
@@ -85,32 +86,11 @@ export class MySQLUserRepository implements UserRepository {
         }
     }
 
-    // async fetchByUsername(userName: string): Promise<User> {
-    //     try {
-    //         const fetchedUser = await prisma.user.findUnique({
-    //             where: { userName }
-    //         });
-    //         if (fetchedUser !== null) {
-    //             return User.createByObject(fetchedUser);
-    //         }
-    //         throw new Error("User not found.");
-    //     } catch (error: any) {
-    //         this.logger.error(error.message);
-    //         throw new Error(error.message);
-    //     }
-    // }
-
     async create(user: User): Promise<User> {
         try {
+            const persistableUser = UserDTO.toPersistence(user);
             const createdUser = await prisma.user.create({
-                data: {
-                    userId: user.userId,
-                    name: user.name,
-                    email: user.email,
-                    userName: user._userName,
-                    password: user._password,
-                    age: user.age
-                }
+                data: persistableUser
             });
             return User.createByObject(createdUser);
         } catch (error: any) {
@@ -121,15 +101,10 @@ export class MySQLUserRepository implements UserRepository {
 
     async update(userId: string, user: User): Promise<User> {
         try {
+            const { userId: omittedUserId, ...persistableUser } = UserDTO.toPersistence(user);
             const updatedUser = await prisma.user.update({
                 where: { userId },
-                data: {
-                    name: user.name,
-                    email: user.email,
-                    userName: user._userName,
-                    password: user._password,
-                    age: user.age
-                }
+                data: persistableUser
             });
             return User.createByObject(updatedUser);
         } catch (error: any) {

@@ -1,5 +1,5 @@
-import { createRandomTodo } from "../../src/fakers/todo";
-import { createRandomUser } from "../../src/fakers/user";
+import { createRandomTodo } from "../../src/APP/Infrastructure/fakers/todo";
+import { createRandomUser } from "../../src/APP/Infrastructure/fakers/user";
 
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();

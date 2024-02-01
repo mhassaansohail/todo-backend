@@ -5,7 +5,7 @@ import { UserService } from "../../APP/Application/user/UserService";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
 import { UserAttributes } from "../../APP/Domain/types/user";
-import { UserDTO } from "../DTO/user.dto";
+import { UserDTO } from "../../APP/shared/DTO/user.dto";
 
 @injectable()
 export class UserController {

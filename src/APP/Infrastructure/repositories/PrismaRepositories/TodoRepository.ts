@@ -3,11 +3,12 @@ import Todo from "../../../Domain/entities/Todo";
 import { TodoRepository } from "../../../Domain/repositories/TodoRepository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../logger/Logger";
+import { TodoDTO } from "../../../shared/DTO/todo.dto";
 
 const prisma = new PrismaClient();
 
 @injectable()
-export class MySQLTodoRepository implements TodoRepository {
+export class PrismaTodoRepository implements TodoRepository {
     constructor(@inject("Logger") private logger: Logger) {
         this.logger = logger;
     }
@@ -42,7 +43,7 @@ export class MySQLTodoRepository implements TodoRepository {
                 take: limit,
                 where: conditions
             });
-            return fetchedTodos.map(todoObj => Todo.createByObject(todoObj));
+            return fetchedTodos.map((fetchedTodo: Todo) => Todo.createByObject(fetchedTodo));
         } catch (error: any) {
             this.logger.error(error.message);
             throw new Error(error.message);
@@ -67,8 +68,9 @@ export class MySQLTodoRepository implements TodoRepository {
 
     async add(todo: Todo): Promise<Todo> {
         try {
+            const persistableTodo = TodoDTO.toPersistence(todo);
             const addedTodo = await prisma.todo.create({
-                data: todo
+                data: persistableTodo
             });
             return Todo.createByObject(addedTodo);
         } catch (error: any) {
@@ -79,9 +81,10 @@ export class MySQLTodoRepository implements TodoRepository {
 
     async update(todoId: string, todo: Todo): Promise<Todo> {
         try {
+            const { todoId: omittedTodoId, ...persistableTodo } = TodoDTO.toPersistence(todo);
             const updateTodo = await prisma.todo.update({
                 where: { todoId },
-                data: todo
+                data: persistableTodo
             });
             return Todo.createByObject(updateTodo);
         } catch (error: any) {

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { UserAttributes } from '../App/Domain/types/user';
+import { UserAttributes } from '../../Domain/types/user';
 import bcrypt from 'bcrypt';
 
 function generateHashedPassword(password: string): string {

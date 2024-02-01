@@ -36,7 +36,7 @@ class User {
 
     enforceMinAgeLimit(age: number): void {
         if (age < 1) {
-            throw new InvalidAgeException("Invalid age, age should be greater than 1.");
+            throw new InvalidAgeException();
         }
     }
 }

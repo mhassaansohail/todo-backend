@@ -7,8 +7,8 @@ export class InvalidUserIdException extends BaseException {
 }
 
 export class InvalidAgeException extends BaseException {
-    constructor(message: string) {
-        super(message);
+    constructor() {
+        super("Invalid age, age should be greater than 1.");
     }
 }
 
