@@ -13,7 +13,7 @@ export class TodoDTO {
     this.completed = completed
   }
   
-  public static toDTO(todo: Todo): TodoDTO {
+  public static toPresentation(todo: Todo): TodoDTO {
     return {
       todoId: todo.todoId,
       title: todo.title,
@@ -29,5 +29,9 @@ export class TodoDTO {
       description: todo.description,
       completed: todo.completed,
     }
+  }
+
+  public static toDomain(todo: TodoDTO): Todo {
+    return Todo.createByObject(todo);
   }
 }

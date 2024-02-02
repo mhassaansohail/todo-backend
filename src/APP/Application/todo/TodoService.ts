@@ -3,14 +3,14 @@ import Todo from "../../Domain/entities/Todo";
 import { TodoRepository } from "../../Domain/repositories/TodoRepository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err } from "oxide.ts";
-import { UniqueIDGenerator } from "../contracts/UniqueIDGenerator";
+import { IUniqueIDGenerator } from "../contracts/IUniqueIDGenerator";
 
 
 @injectable()
 export class TodoService {
     private repository: TodoRepository;
-    private idGenerator: UniqueIDGenerator;
-    constructor(@inject("UniqueIDGenerator") idGenerator: UniqueIDGenerator, @inject("TodoRepository") repository: TodoRepository) {
+    private idGenerator: IUniqueIDGenerator;
+    constructor(@inject("UniqueIDGenerator") idGenerator: IUniqueIDGenerator, @inject("TodoRepository") repository: TodoRepository) {
         this.repository = repository;
         this.idGenerator = idGenerator;
     }

@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
-import { UniqueIDGenerator } from "../../Application/contracts/UniqueIDGenerator";
+import { IUniqueIDGenerator } from "../../Application/contracts/IUniqueIDGenerator";
 
-export class UUIDGenerator implements UniqueIDGenerator {
+export class UUIDGenerator implements IUniqueIDGenerator {
     constructor() { }
 
     getUniqueID(): string {

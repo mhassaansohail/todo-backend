@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Result, Ok, Err } from 'oxide.ts';
+import { ZodValidationError } from '../../Errors/ZodValidationError';
 
 export const todoPaginationOptionsInputSchema = z.object({
     offset: z.string({
@@ -28,6 +29,9 @@ export const validateTodoPaginationOptions = (input: any): Result<any, Error> =>
         const searchParams = todoPaginationOptionsInputSchema.parse(input);
         return Ok(searchParams);
     } catch (error: any) {
+        if (error instanceof z.ZodError) {
+            return Err(new ZodValidationError(error));
+        }
         return Err(new Error(error.message));
     }
 }

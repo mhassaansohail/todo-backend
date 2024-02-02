@@ -17,7 +17,7 @@ export class UserDTO {
     this.age = age;
   }
 
-  public static toDTO(user: User): Partial<UserDTO> {
+  public static toPresentation(user: User): Partial<UserDTO> {
     return {
       userId: user.userId,
       name: user.name,
@@ -37,4 +37,9 @@ export class UserDTO {
       age: user.age,
     }
   }
+
+  public static toDomain(user: UserDTO): User {
+    return User.createByObject(user);
+  }
+
 }

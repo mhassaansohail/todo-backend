@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Result, Err, Ok } from 'oxide.ts';
+import { ZodValidationError } from '../../Errors/ZodValidationError';
 
 export const todoInputSchema = z.object({
     id: z.string({
@@ -24,6 +25,9 @@ export const validateTodoInput = (input: any) => {
         const todoInput = todoInputSchema.parse(input);
         return Ok(todoInput);
     } catch (error: any) {
+        if (error instanceof z.ZodError) {
+            return Err(new ZodValidationError(error));
+        }
         return Err(new Error(error.message));
     }
 }

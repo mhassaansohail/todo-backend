@@ -4,13 +4,13 @@ import { UserAttributes } from "../../Domain/types/user";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err } from "oxide.ts";
 import { inject, injectable } from "tsyringe";
-import { UniqueIDGenerator } from "../contracts/UniqueIDGenerator";
+import { IUniqueIDGenerator } from "../contracts/IUniqueIDGenerator";
 
 @injectable()
 export class UserService {
     private repository: UserRepository;
-    private idGenerator: UniqueIDGenerator;
-    constructor(@inject("UniqueIDGenerator") idGenerator: UniqueIDGenerator, @inject("UserRepository") repository: UserRepository) {
+    private idGenerator: IUniqueIDGenerator;
+    constructor(@inject("UniqueIDGenerator") idGenerator: IUniqueIDGenerator, @inject("UserRepository") repository: UserRepository) {
         this.repository = repository;
         this.idGenerator = idGenerator;
     }

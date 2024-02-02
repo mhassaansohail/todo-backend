@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Ok, Err, Result } from 'oxide.ts';
+import { ZodValidationError } from '../../Errors/ZodValidationError';
 
 export const authInputSchema = z.object({
     userName: z.string({
@@ -18,6 +19,9 @@ export const validateAuthInput = (input: any): Result < any, Error> => {
         const authInput = authInputSchema.parse(input);
         return Ok(authInput);
     } catch(error: any) {
+        if (error instanceof z.ZodError) {
+            return Err(new ZodValidationError(error));
+        }
         return Err(new Error(error.message));
     }
 }

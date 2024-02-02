@@ -48,7 +48,7 @@ export class UserController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        return res.status(200).json({ status: "Succesful", data: UserDTO.toDTO(fetchedUserResult.unwrap()) });
+        return res.status(200).json({ status: "Succesful", data: UserDTO.toPresentation(fetchedUserResult.unwrap()) });
     }
 
     createUser = async (req: Request, res: Response): Promise<Response> => {
@@ -69,7 +69,7 @@ export class UserController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        return res.status(201).json({ status: "Succesful", data: UserDTO.toDTO(createdUserResult.unwrap()) });
+        return res.status(201).json({ status: "Succesful", data: UserDTO.toPresentation(createdUserResult.unwrap()) });
     }
 
     updateUser = async (req: Request, res: Response): Promise<Response> => {
@@ -97,7 +97,7 @@ export class UserController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        return res.status(200).json({ status: "Succesful", data: UserDTO.toDTO(updatedUserResult.unwrap()) });
+        return res.status(200).json({ status: "Succesful", data: UserDTO.toPresentation(updatedUserResult.unwrap()) });
     }
 
     deleteUser = async (req: Request, res: Response): Promise<Response> => {
@@ -114,7 +114,7 @@ export class UserController {
             this.logger.error(message);
             return res.status(400).json({ status: "Unsuccesful", message });
         }
-        return res.status(200).json({ status: "Succesful", data: UserDTO.toDTO(deletedUserResult.unwrap()) });
+        return res.status(200).json({ status: "Succesful", data: UserDTO.toPresentation(deletedUserResult.unwrap()) });
     }
 
 }
