@@ -39,3 +39,6 @@ export class PaginatedCollection<T> {
         return Math.floor(offset / limit) + 1
     }
 }
+
+
+//Pagination option page,  per page

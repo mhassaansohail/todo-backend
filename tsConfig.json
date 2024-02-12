@@ -19,6 +19,5 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
-  },
-  "exclude": ["src/APP/Infrastructure/fakers/**", "prisma/seed/**"]
+  }
 }
