@@ -1,4 +1,4 @@
-import { InvalidCredentialsException, InvalidPasswordException, InvalidUserNameException } from "../../exceptions/user";
+import { InvalidCredentialsException, InvalidPasswordException, InvalidUserNameException } from "../../exceptions/credentials";
 
 export class Credentials {
     private readonly userName: string;
@@ -30,7 +30,7 @@ export class Credentials {
         if (!userName || !password) {
             throw new InvalidCredentialsException();
         }
-        if (userName.length < 3) {
+        if (userName.length < 6) {
             throw new InvalidUserNameException();
         }
         if (password.length < 6) {

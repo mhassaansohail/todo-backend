@@ -11,21 +11,3 @@ export class InvalidAgeException extends BaseException {
         super("Invalid age, age should be greater than 1.");
     }
 }
-
-export class InvalidUserNameException extends BaseException {
-    constructor() {
-        super("UserName provided is invalid.");
-    }
-}
-
-export class InvalidPasswordException extends BaseException {
-    constructor() {
-        super("Password provided is invalid.");
-    }
-}
-
-export class InvalidCredentialsException extends BaseException {
-    constructor() {
-        super("Credentials provided are invalid.");
-    }
-}
