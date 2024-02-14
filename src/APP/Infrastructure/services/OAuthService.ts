@@ -63,7 +63,7 @@ export class OAuthService implements IOAuthService {
     async genrateTokenFromParam(code: string): Promise<Err<Error> | Ok<any>> {
         try {
             const { tokens } = await this.oAuthClient.getToken(code);
-            this.oAuthClient.setCredentials(tokens);
+            // this.oAuthClient.setCredentials(tokens);
             return Ok(tokens);
         } catch (error) {
             return Err(new Error('Error exchanging code for token'));

@@ -28,7 +28,7 @@ export class AuthService {
 
     async loginWithOAuth(): Promise<Ok<string> | Err<Error>> {
         try {
-            const consentScreenUrlResult = await this.oAuthService.generateAuthURL(['profile', 'email']);
+            const consentScreenUrlResult = await this.oAuthService.generateAuthURL(['profile']);
             return Ok(consentScreenUrlResult.unwrap())
         } catch (error) {
             return Err(new Error("Invalid credentials."));
