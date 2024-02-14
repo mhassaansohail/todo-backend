@@ -1,17 +1,21 @@
+import { InsufficientRowsException } from "../exceptions/pagination";
+
 export class PaginatedCollection<T> {
     rows: T[];
     totalRows: number;
     rowsInPage: number;
+    pageSize: number;
     pageNumber: number;
     totalPages: number;
     prevPage: number | undefined;
     nextPage: number | undefined;
 
-    constructor(rows: T[], totalRows: number, offset: number, limit: number) {
+    constructor(rows: T[], totalRows: number, pageNumber: number, pageSize: number) {
         this.rows = rows;
         this.rowsInPage = this.rowsInCurrentPage;
+        this.pageSize = pageSize;
         this.totalRows = totalRows;
-        this.pageNumber = this.calculatePageNumber(offset, limit);
+        this.pageNumber = pageNumber;
         this.totalPages = this.calculateTotalPages();
         this.prevPage = this.calculatePrevPage();
         this.nextPage = this.calculateNextPage();
@@ -26,19 +30,13 @@ export class PaginatedCollection<T> {
     }
 
     private calculateTotalPages(): number {
-        if (this.rowsInPage <= 0) {
-            throw new Error("End of Page.");
+        if (this.rowsInPage < 1) {
+            throw new InsufficientRowsException("End of Page.");
         }
-        return Math.ceil(this.totalRows / this.rowsInPage);
+        return Math.ceil(this.totalRows / this.pageSize);
     }
 
     get rowsInCurrentPage(): number {
         return this.rows.length;
     }
-    private calculatePageNumber(offset: number, limit: number): number {
-        return Math.floor(offset / limit) + 1
-    }
 }
-
-
-//Pagination option page,  per page

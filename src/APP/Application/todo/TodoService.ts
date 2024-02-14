@@ -4,6 +4,7 @@ import { TodoRepository } from "../../Domain/repositories/TodoRepository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err } from "oxide.ts";
 import { IUniqueIDGenerator } from "../contracts/IUniqueIDGenerator";
+import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
 
 
 @injectable()
@@ -15,11 +16,12 @@ export class TodoService {
         this.idGenerator = idGenerator;
     }
 
-    async getTodos(offset: number, limit: number, conditionParams: Partial<Todo>): Promise<Ok<PaginatedCollection<Todo>> | Err<Error>> {
+    async getTodos(pageNumber: number, pageSize: number, conditionParams: Partial<Todo>): Promise<Ok<PaginatedCollection<Todo>> | Err<Error>> {
         try {
             const totalTodoRows = await this.repository.count(conditionParams);
-            const todoRows = await this.repository.fetchAll(offset, limit, conditionParams);
-            return Ok(new PaginatedCollection(todoRows, totalTodoRows, offset, limit));
+            const paginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
+            const todoRows = await this.repository.fetchAll(paginationOptions.offset, paginationOptions.limit, conditionParams);
+            return Ok(new PaginatedCollection(todoRows, totalTodoRows, pageNumber, pageSize));
         } catch (error: any) {
             return Err(new Error(error.message));
         }

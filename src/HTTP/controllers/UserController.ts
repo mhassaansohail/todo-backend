@@ -23,8 +23,8 @@ export class UserController {
             this.logger.error(message);
             return res.status(403).json({ status: "Unsuccesful", message });
         }
-        const { offset, limit, name, email, userName } = queryParamsValidation.unwrap();
-        const fetchedUsersResult = await this.service.getUsers(offset, limit, { name, email, userName });
+        const { pageSize, pageNumber, name, email, userName } = queryParamsValidation.unwrap();
+        const fetchedUsersResult = await this.service.getUsers(pageNumber, pageSize, { name, email, userName });
         if (fetchedUsersResult.isErr()) {
             const { message } = fetchedUsersResult.unwrapErr();
             this.logger.error(message);

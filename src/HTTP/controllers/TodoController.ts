@@ -22,8 +22,8 @@ export class TodoController {
             this.logger.error(message);
             return res.status(403).json({ status: "Unsuccesful", message });
         }
-        const { offset, limit, title, description } = queryParamsValidation.unwrap();
-        const fetchTodosResult = await this.service.getTodos(offset, limit, { title, description });
+        const { pageSize, pageNumber, title, description } = queryParamsValidation.unwrap();
+        const fetchTodosResult = await this.service.getTodos(pageNumber, pageSize, { title, description });
         if (fetchTodosResult.isErr()) {
             const { message } = fetchTodosResult.unwrapErr();
             this.logger.error(message);

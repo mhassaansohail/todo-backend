@@ -14,14 +14,14 @@ export class AuthController {
      }
 
     login = async (req: Request, res: Response): Promise<Response> => {
-        const bodyKeysCount = Object.keys(req.body).length;
+        const authInputValidationResult = validateAuthInput(req.body);
+        if (authInputValidationResult.isErr()) {
+            const { message } = authInputValidationResult.unwrapErr();
+            this.logger.error(message);
+            return res.status(401).json({ status: "Unsuccesful", message });
+        }
+        const bodyKeysCount = Object.keys(authInputValidationResult.unwrap()).length;
         if (bodyKeysCount === 2) {
-            const authInputValidationResult = validateAuthInput(req.body);
-            if (authInputValidationResult.isErr()) {
-                const { message } = authInputValidationResult.unwrapErr();
-                this.logger.error(message);
-                return res.status(401).json({ status: "Unsuccesful", message });
-            }
             const { userName, password } = authInputValidationResult.unwrap();
             const authenticationTokenResult = await this.service?.loginByCredentials(userName, password);
             if (authenticationTokenResult.isErr()) {
@@ -31,7 +31,7 @@ export class AuthController {
             }
             const token = authenticationTokenResult.unwrap();
             return res.status(200).json({ status: "Succesful", token });
-        } else if (bodyKeysCount === 0) {
+        } else {
             const consentScreenUrlResult = await this.service.loginWithOAuth();
             if (consentScreenUrlResult.isErr()) {
                 const { message } = consentScreenUrlResult.unwrapErr();
@@ -40,9 +40,6 @@ export class AuthController {
             }
             const consentScreenUrl = consentScreenUrlResult.unwrap();
             return res.status(200).json({ status: "Succesful", url: consentScreenUrl });
-        } else {
-            this.logger.error("Invalid number of inputs provided.");
-            return res.status(401).json({ status: "Unsuccesful", message: "Invalid number of inputs provided." });
         }
     }
 

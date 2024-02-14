@@ -1,9 +1,9 @@
 import swaggerUi from 'swagger-ui-express';
 import { resolve } from "path";
 import { AuthMiddleware } from '../middlewares/AuthMiddleware';
-import authRouter from '../routers/authRouter';
-import userRouter from '../routers/userRouter';
-import todoRouter from '../routers/todoRouter';
+import authRouter from './authRouter';
+import userRouter from './userRouter';
+import todoRouter from './todoRouter';
 
 const authMiddleware = new AuthMiddleware();
 

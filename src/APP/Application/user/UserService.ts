@@ -5,6 +5,7 @@ import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection
 import { Ok, Err } from "oxide.ts";
 import { inject, injectable } from "tsyringe";
 import { IUniqueIDGenerator } from "../contracts/IUniqueIDGenerator";
+import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
 
 @injectable()
 export class UserService {
@@ -15,11 +16,12 @@ export class UserService {
         this.idGenerator = idGenerator;
     }
 
-    async getUsers(offset: number, limit: number, conditionParams: Partial<UserAttributes>): Promise<Ok<PaginatedCollection<User>> | Err<Error>> {
+    async getUsers(pageSize: number, pageNumber: number, conditionParams: Partial<UserAttributes>): Promise<Ok<PaginatedCollection<User>> | Err<Error>> {
         try {
             const totalUserRows = await this.repository.count(conditionParams);
-            const userRows = await this.repository.fetchAll(offset, limit, conditionParams);
-            return Ok(new PaginatedCollection(userRows, totalUserRows, offset, limit));
+            const paginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
+            const userRows = await this.repository.fetchAll(paginationOptions.offset, paginationOptions.limit, conditionParams);
+            return Ok(new PaginatedCollection(userRows, totalUserRows, pageNumber, pageSize));
         } catch (error: any) {
             return Err(new Error(error.message));
         }

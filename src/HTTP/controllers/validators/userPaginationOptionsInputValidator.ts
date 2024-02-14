@@ -3,26 +3,26 @@ import { Result, Ok, Err } from 'oxide.ts';
 import { ZodValidationError } from '../../Errors/ZodValidationError';
 
 export const userPaginationOptionsInputSchema = z.object({
-    offset: z.string({
-        required_error: "Offset is required",
-        invalid_type_error: "Offset must be string",
-    }).transform((value) => parseInt(value)).refine((value) => !isNaN(value) && value >= 0, {
-        message: "Invalid Offset",
+    pageSize: z.string({
+        required_error: "Page size param is required",
+        invalid_type_error: "Page size param must be a string",
+    }).transform((value) => parseInt(value)).refine((value) => !isNaN(value) && value > 0, {
+        message: "Invalid Page size param",
     }),
-    limit: z.string({
-        required_error: "Limit is required",
-        invalid_type_error: "Limit must be a string",
+    pageNumber: z.string({
+        required_error: "Page number param is required",
+        invalid_type_error: "Page number param must be a string",
     }).transform((value) => parseInt(value, 10)).refine((value) => !isNaN(value) && value > 0, {
-        message: "Invalid Limit",
+        message: "Invalid Page number param",
     }),
     name: z.string({
-        invalid_type_error: "Name must be string",
+        invalid_type_error: "Name must be a string",
     }).optional().default(""),
     userName: z.string({
-        invalid_type_error: "Username must be string",
+        invalid_type_error: "Username must be a string",
     }).optional().default(""),
     email: z.string({
-        invalid_type_error: "Email must be string",
+        invalid_type_error: "Email must be a string",
     }).optional().default(""),
 });
 
