@@ -1,4 +1,4 @@
-import { Ok, Err } from 'oxide.ts';
+import { Ok, Err, Result } from 'oxide.ts';
 import { google } from 'googleapis';
 import fs from 'fs';
 import { injectable } from 'tsyringe';
@@ -52,7 +52,7 @@ export class OAuthService implements IOAuthService {
     constructor() {
         this.oAuthClient = getOAuthClient();
     }
-    async generateAuthURL(scopes: string[]): Promise<Err<Error> | Ok<string>> {
+    async generateAuthURL(scopes: string[]): Promise<Result<string, Error>> {
         try {
             return Ok(this.oAuthClient.generateAuthUrl({ access_type: 'offline', scope: scopes }));
         } catch (error) {
@@ -60,7 +60,7 @@ export class OAuthService implements IOAuthService {
         }
     }
 
-    async genrateTokenFromParam(code: string): Promise<Err<Error> | Ok<any>> {
+    async genrateTokenFromParam(code: string): Promise<Result<any, Error>> {
         try {
             const { tokens } = await this.oAuthClient.getToken(code);
             // this.oAuthClient.setCredentials(tokens);
@@ -70,7 +70,7 @@ export class OAuthService implements IOAuthService {
         }
     }
 
-    async verifyToken(token: any): Promise<Err<Error> | Ok<any>> {
+    async verifyToken(token: any): Promise<Result<any, Error>> {
         try {
             const ticket = await this.oAuthClient.verifyIdToken({
                 idToken: token,

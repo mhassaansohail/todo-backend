@@ -2,7 +2,7 @@ import User from "../../Domain/entities/User";
 import { UserRepository } from "../../Domain/repositories/UserRepository";
 import { UserAttributes } from "../../Domain/types/user";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
-import { Ok, Err } from "oxide.ts";
+import { Ok, Err, Result } from "oxide.ts";
 import { inject, injectable } from "tsyringe";
 import { IUniqueIDGenerator } from "../contracts/IUniqueIDGenerator";
 import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
@@ -16,7 +16,7 @@ export class UserService {
         this.idGenerator = idGenerator;
     }
 
-    async getUsers(pageSize: number, pageNumber: number, conditionParams: Partial<UserAttributes>): Promise<Ok<PaginatedCollection<User>> | Err<Error>> {
+    async getUsers(pageSize: number, pageNumber: number, conditionParams: Partial<UserAttributes>): Promise<Result<PaginatedCollection<User>, Error>> {
         try {
             const totalUserRows = await this.repository.count(conditionParams);
             const paginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
@@ -27,7 +27,7 @@ export class UserService {
         }
     }
 
-    async getUserById(userId: string): Promise<Ok<User> | Err<Error>> {
+    async getUserById(userId: string): Promise<Result<User, Error>> {
         try {
             return Ok(await this.repository.fetchById(userId));
         } catch (error: any) {
@@ -35,7 +35,7 @@ export class UserService {
         }
     }
 
-    async getUserByUsername(userName: string) {
+    async getUserByUsername(userName: string): Promise<Result<User, Error>> {
         try {
             return Ok(await this.repository.fetchByUserNameOrEmail(userName));
         } catch (error: any) {
@@ -43,7 +43,7 @@ export class UserService {
         }
     }
 
-    async createUser(user: UserAttributes): Promise<Ok<User> | Err<Error>> {
+    async createUser(user: UserAttributes): Promise<Result<User, Error>> {
         try {
             const userId = this.idGenerator.getUniqueID();
             user.userId = userId;
@@ -54,7 +54,7 @@ export class UserService {
         }
     }
 
-    async updateUser(userId: string, user: UserAttributes): Promise<Ok<User> | Err<Error>> {
+    async updateUser(userId: string, user: UserAttributes): Promise<Result<User, Error>> {
         try {
             const userEntity = User.createByObject(user);
             return Ok(await this.repository.update(userId, userEntity));
@@ -63,7 +63,7 @@ export class UserService {
         }
     }
 
-    async deleteUser(userId: string): Promise<Ok<User> | Err<Error>> {
+    async deleteUser(userId: string): Promise<Result<User, Error>> {
         try {
             return Ok(await this.repository.remove(userId));
         } catch (error: any) {

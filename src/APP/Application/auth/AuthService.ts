@@ -1,4 +1,4 @@
-import { Ok, Err } from "oxide.ts";
+import { Ok, Err, Result } from "oxide.ts";
 import { UserRepository } from "../../Domain/repositories/UserRepository";
 import { inject, injectable } from "tsyringe";
 import { IJWTAuthService } from "../contracts/IJWTAuthService";
@@ -26,7 +26,7 @@ export class AuthService {
 
     }
 
-    async loginWithOAuth(): Promise<Ok<string> | Err<Error>> {
+    async loginWithOAuth(): Promise<Result<string, Error>> {
         try {
             const consentScreenUrlResult = await this.oAuthService.generateAuthURL(['profile']);
             return Ok(consentScreenUrlResult.unwrap())
@@ -35,7 +35,7 @@ export class AuthService {
         }
     }
 
-    async loginByCredentials(userName: string, password: string): Promise<Ok<string> | Err<Error>> {
+    async loginByCredentials(userName: string, password: string): Promise<Result<string, Error>> {
         try {
             const userCredentials = new Credentials(userName, password);
             const isValidUserResult = await this.verifyUser(userCredentials._username, userCredentials._password);
@@ -50,7 +50,7 @@ export class AuthService {
         }
     }
 
-    async verifyToken(token: string): Promise<Ok<string> | Err<Error>> {
+    async verifyToken(token: string): Promise<Result<string, Error>> {
         try {
             let isvalidTokenResult = await this.jwtService.verifyToken(token);
             if (isvalidTokenResult.isErr()) {
@@ -62,7 +62,7 @@ export class AuthService {
         }
     }
 
-    private async verifyUser(userName: string, password: string): Promise<Ok<boolean> | Err<Error>> {
+    private async verifyUser(userName: string, password: string): Promise<Result<boolean, Error>> {
         try {
             const user = await this.repository.fetchByUserNameOrEmail(userName);
             return Ok(this.encryptionService.comparePassword(password, String(user?._password)));
@@ -71,7 +71,7 @@ export class AuthService {
         }
     }
 
-    async callback(code: string): Promise<Ok<any> | Err<Error>> {
+    async callback(code: string): Promise<Result<any, Error>> {
         try {
             const convertedTokenResult = await this.oAuthService.genrateTokenFromParam(code);
             return Ok(convertedTokenResult.unwrap());
