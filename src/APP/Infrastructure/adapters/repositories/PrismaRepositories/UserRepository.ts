@@ -1,9 +1,9 @@
 import { inject, injectable } from "tsyringe";
-import User from "../../../Domain/entities/User";
-import { UserRepository } from "../../../Domain/repositories/UserRepository";
+import User from "../../../../Domain/entities/User";
+import { UserRepository } from "../../../../Domain/repositories/UserRepository";
 import { PrismaClient } from "@prisma/client";
-import { Logger } from "../../logger/Logger";
-import { UserDTO } from "../../../shared/DTO/user.dto";
+import { Logger } from "../../../logger/Logger";
+
 const prisma = new PrismaClient();
 
 @injectable()
@@ -88,9 +88,8 @@ export class PrismaUserRepository implements UserRepository {
 
     async create(user: User): Promise<User> {
         try {
-            const persistableUser = UserDTO.toPersistence(user);
             const createdUser = await prisma.user.create({
-                data: persistableUser
+                data: user
             });
             return User.createByObject(createdUser);
         } catch (error: any) {
@@ -101,7 +100,7 @@ export class PrismaUserRepository implements UserRepository {
 
     async update(userId: string, user: User): Promise<User> {
         try {
-            const { userId: omittedUserId, ...persistableUser } = UserDTO.toPersistence(user);
+            const { userId: omittedUserId, ...persistableUser } = user;
             const updatedUser = await prisma.user.update({
                 where: { userId },
                 data: persistableUser

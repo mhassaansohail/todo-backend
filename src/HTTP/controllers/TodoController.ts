@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { validateTodoIdParam, validateTodoInput, validateTodoPaginationOptions } from "./validators";
+import { validateTodoIdParam, validateTodoInput, validateTodoPaginationOptions } from "./inputValidators";
 import { injectable, inject } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
 import { TodoAttributes } from "../../APP/Domain/types/todo";
 import { TodoService } from "../../APP/Application/todo/TodoService";
-import { TodoDTO } from "../../APP/shared/DTO/todo.dto";
+import { TodoDTO } from "../DTO/todo.dto";
 
 @injectable()
 export class TodoController {

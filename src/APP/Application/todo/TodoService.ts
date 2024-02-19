@@ -3,8 +3,9 @@ import Todo from "../../Domain/entities/Todo";
 import { TodoRepository } from "../../Domain/repositories/TodoRepository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err, Result } from "oxide.ts";
-import { IUniqueIDGenerator } from "../contracts/IUniqueIDGenerator";
+import { IUniqueIDGenerator } from "../ports/IUniqueIDGenerator";
 import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
+import { TodoAttributes } from "APP/Domain/types/todo";
 
 
 @injectable()
@@ -35,7 +36,7 @@ export class TodoService {
         }
     }
 
-    async addTodo(todo: Todo): Promise<Result<Todo, Error>> {
+    async addTodo(todo: TodoAttributes): Promise<Result<Todo, Error>> {
         try {
             const todoId = this.idGenerator.getUniqueID();
             todo.todoId = todoId;
@@ -46,7 +47,7 @@ export class TodoService {
         }
     }
 
-    async updateTodo(todoId: string, todo: Todo): Promise<Result<Todo, Error>> {
+    async updateTodo(todoId: string, todo: TodoAttributes): Promise<Result<Todo, Error>> {
         try {
             const todoEntity = Todo.createByObject(todo)
             return Ok(await this.repository.update(todoId, todoEntity));

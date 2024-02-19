@@ -1,6 +1,6 @@
 import { z, ZodError } from 'zod';
 import { Err, Ok, Result } from 'oxide.ts';
-import { ZodValidationError } from '../../Errors/ZodValidationError';
+import { ZodValidationError } from '../../controllers/inputValidators/Errors/ZodValidationError';
 
 const authorizationHeaderSchema = z.object({
   authorization: z.string({

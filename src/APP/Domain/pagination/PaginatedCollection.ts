@@ -1,4 +1,4 @@
-import { InsufficientRowsException } from "../exceptions/pagination";
+import { InsufficientPaginatedRowsException } from "../exceptions/pagination/InsufficientPaginatedRows.exception";
 
 export class PaginatedCollection<T> {
     rows: T[];
@@ -31,7 +31,7 @@ export class PaginatedCollection<T> {
 
     private calculateTotalPages(): number {
         if (this.rowsInPage < 1) {
-            throw new InsufficientRowsException("End of Page.");
+            throw new InsufficientPaginatedRowsException("End of Page.");
         }
         return Math.ceil(this.totalRows / this.pageSize);
     }

@@ -2,9 +2,10 @@ import { Ok, Err, Result } from 'oxide.ts';
 import { google } from 'googleapis';
 import fs from 'fs';
 import { injectable } from 'tsyringe';
-import { IOAuthService } from '../../Application/contracts/IOAuthService';
+import { IOAuthService } from '../../../Application/ports/IOAuthService';
+import { config } from '../../config';
 
-const oAuthKeysFilePath = String(process.env.OAUTH_KEYS);
+const oAuthKeysFilePath = String(config.oauthKeysFilePath);
 
 interface OAuthKeys {
     client_id: string,

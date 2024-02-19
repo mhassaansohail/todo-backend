@@ -1,9 +1,8 @@
 import { inject, injectable } from "tsyringe";
-import Todo from "../../../Domain/entities/Todo";
-import { TodoRepository } from "../../../Domain/repositories/TodoRepository";
+import Todo from "../../../../Domain/entities/Todo";
+import { TodoRepository } from "../../../../Domain/repositories/TodoRepository";
 import { PrismaClient } from "@prisma/client";
-import { Logger } from "../../logger/Logger";
-import { TodoDTO } from "../../../shared/DTO/todo.dto";
+import { Logger } from "../../../logger/Logger";
 
 const prisma = new PrismaClient();
 
@@ -68,9 +67,8 @@ export class PrismaTodoRepository implements TodoRepository {
 
     async add(todo: Todo): Promise<Todo> {
         try {
-            const persistableTodo = TodoDTO.toPersistence(todo);
             const addedTodo = await prisma.todo.create({
-                data: persistableTodo
+                data: todo
             });
             return Todo.createByObject(addedTodo);
         } catch (error: any) {
@@ -81,7 +79,7 @@ export class PrismaTodoRepository implements TodoRepository {
 
     async update(todoId: string, todo: Todo): Promise<Todo> {
         try {
-            const { todoId: omittedTodoId, ...persistableTodo } = TodoDTO.toPersistence(todo);
+            const { todoId: omittedTodoId, ...persistableTodo } = todo;
             const updateTodo = await prisma.todo.update({
                 where: { todoId },
                 data: persistableTodo

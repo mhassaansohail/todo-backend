@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../../APP/Application/auth/AuthService';
 import { Logger } from '../../APP/Infrastructure/logger/Logger';
 import { autoInjectable } from "tsyringe";
-import { validateAuthorizationHeader } from './validators/authHeaderValidator';
+import { validateAuthorizationHeader } from './inputValidators/authHeaderValidator';
 
 @autoInjectable()
 export class AuthMiddleware {

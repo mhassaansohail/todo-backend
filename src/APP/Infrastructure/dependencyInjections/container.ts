@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
 import { Logger } from "../logger/Logger";
-import { OAuthService } from "../services/OAuthService";
-import { JWTService } from "../services/JWTService";
+import { OAuthService } from "../adapters/services/OAuthService";
+import { JWTService } from "../adapters/services/JWTService";
 import { AuthService } from "../../Application/auth/AuthService";
 import { AuthMiddleware } from "../../../HTTP/middlewares/AuthMiddleware";
 import { AuthController } from "../../../HTTP/controllers/AuthController";
@@ -10,10 +10,10 @@ import { TodoController } from "../../../HTTP/controllers/TodoController";
 import { UserController } from "../../../HTTP/controllers/UserController";
 import { UserService } from "../../Application/user/UserService";
 import { TodoService } from "../../Application/todo/TodoService";
-import { PrismaUserRepository } from "../repositories/PrismaRepositories/UserRepository";
-import { PrismaTodoRepository } from "../repositories/PrismaRepositories/TodoRepository";
-import { BCryptEncryptionService } from "../services/BCryptEncryptionService";
-import { UUIDGenerator } from "../services/UUIDGenerator";
+import { PrismaUserRepository } from "../adapters/repositories/PrismaRepositories/UserRepository";
+import { PrismaTodoRepository } from "../adapters/repositories/PrismaRepositories/TodoRepository";
+import { BCryptEncryptionService } from "../adapters/services/BCryptEncryptionService";
+import { UUIDGenerator } from "../adapters/services/UUIDGenerator";
 
 container.register("Logger", { useClass: Logger });
 container.register("AuthService", { useClass: AuthService });

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Result, Ok, Err } from 'oxide.ts';
-import { ZodValidationError } from '../../Errors/ZodValidationError';
+import { ZodValidationError } from './Errors/ZodValidationError';
 
 export const todoIdParamSchema = z.object({
     todoId: z.string({

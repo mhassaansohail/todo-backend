@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Err, Ok, Result } from 'oxide.ts';
-import { ZodValidationError } from '../../Errors/ZodValidationError';
+import { ZodValidationError } from './Errors/ZodValidationError';
 
 export const userIdParamSchema = z.object({
     userId: z.string({

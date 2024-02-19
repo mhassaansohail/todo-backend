@@ -1,7 +1,8 @@
-import { IJWTAuthService } from "../../Application/contracts/IJWTAuthService";
+import { IJWTAuthService } from "../../../Application/ports/IJWTAuthService";
 import jwt from "jsonwebtoken"
 import { Err, Ok, Result } from "oxide.ts";
-const secretKey = String(process.env.SECRET_KEY);
+import { config } from '../../config';
+const secretKey = String(config.jwtSecretKey);
 
 export class JWTService implements IJWTAuthService {
     private client: any;

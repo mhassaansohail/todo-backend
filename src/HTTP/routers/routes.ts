@@ -4,11 +4,12 @@ import { AuthMiddleware } from '../middlewares/AuthMiddleware';
 import authRouter from './authRouter';
 import userRouter from './userRouter';
 import todoRouter from './todoRouter';
+import { config } from '../../APP/Infrastructure/config';
 
 const authMiddleware = new AuthMiddleware();
 
 export const addRoutes = async (app: any): Promise<void> => {
-    const swaggerFilePath = String(process.env.SWAGGER_DOC_FILE);
+    const swaggerFilePath = String(config.swaggerDocFile);
     const swaggerDocument = await import(resolve(swaggerFilePath));
     app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.use('/auth', authRouter);

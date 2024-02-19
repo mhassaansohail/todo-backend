@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { validateUserIdParam, validateUserInput, validateUserPaginationOptions } from "./validators";
+import { validateUserIdParam, validateUserInput, validateUserPaginationOptions } from "./inputValidators";
 import bcrypt from 'bcrypt';
 import { UserService } from "../../APP/Application/user/UserService";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
 import { UserAttributes } from "../../APP/Domain/types/user";
-import { UserDTO } from "../../APP/shared/DTO/user.dto";
+import { UserDTO } from "../DTO/user.dto";
 
 @injectable()
 export class UserController {
@@ -59,10 +59,6 @@ export class UserController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const userInput = userInputValidationResult.unwrap();
-        const saltRounds = process.env.SALT_ROUNDS;
-        const password = userInput.password;
-        const hashedPassword = bcrypt.hashSync(password, Number(saltRounds));
-        userInput.password = hashedPassword;
         const createdUserResult = await this.service.createUser(userInput as UserAttributes);
         if (createdUserResult.isErr()) {
             const { message } = createdUserResult.unwrapErr();
@@ -87,10 +83,6 @@ export class UserController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const userInput = userInputValidationResult.unwrap();
-        const saltRounds = process.env.SALT_ROUNDS;
-        const password = userInput.password;
-        const hashedPassword = bcrypt.hashSync(password, Number(saltRounds));
-        userInput.password = hashedPassword;
         const updatedUserResult = await this.service.updateUser(userId, { userId, ...userInput });
         if (updatedUserResult.isErr()) {
             const { message } = updatedUserResult.unwrapErr();

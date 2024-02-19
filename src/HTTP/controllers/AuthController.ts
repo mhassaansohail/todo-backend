@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { authInputValidator, validateAuthInput } from './validators';
+import { authInputValidator, validateAuthInput } from './inputValidators';
 import { AuthService } from '../../APP/Application/auth/AuthService';
 import { Logger } from '../../APP/Infrastructure/logger/Logger';
 import { inject, injectable } from 'tsyringe';

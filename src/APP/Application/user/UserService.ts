@@ -4,16 +4,19 @@ import { UserAttributes } from "../../Domain/types/user";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { Ok, Err, Result } from "oxide.ts";
 import { inject, injectable } from "tsyringe";
-import { IUniqueIDGenerator } from "../contracts/IUniqueIDGenerator";
+import { IUniqueIDGenerator } from "../ports/IUniqueIDGenerator";
 import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
+import { IEncryptionService } from "../ports/IEncryptionService";
 
 @injectable()
 export class UserService {
     private repository: UserRepository;
     private idGenerator: IUniqueIDGenerator;
-    constructor(@inject("UniqueIDGenerator") idGenerator: IUniqueIDGenerator, @inject("UserRepository") repository: UserRepository) {
+    private encryptionService: IEncryptionService;
+    constructor(@inject("UniqueIDGenerator") idGenerator: IUniqueIDGenerator, @inject("UserRepository") repository: UserRepository, @inject("EncryptionService") encryptionService: IEncryptionService) {
         this.repository = repository;
         this.idGenerator = idGenerator;
+        this.encryptionService = encryptionService;
     }
 
     async getUsers(pageSize: number, pageNumber: number, conditionParams: Partial<UserAttributes>): Promise<Result<PaginatedCollection<User>, Error>> {
@@ -47,7 +50,10 @@ export class UserService {
         try {
             const userId = this.idGenerator.getUniqueID();
             user.userId = userId;
-            const userEntity = User.createByObject({...user});
+            const password = user.password;
+            const hashedPassword = this.encryptionService.encryptPassword(password).unwrap();
+            user.password = hashedPassword;
+            const userEntity = User.createByObject({ ...user });
             return Ok(await this.repository.create(userEntity));
         } catch (error: any) {
             return Err(new Error(error.message));
@@ -56,6 +62,9 @@ export class UserService {
 
     async updateUser(userId: string, user: UserAttributes): Promise<Result<User, Error>> {
         try {
+            const password = user.password;
+            const hashedPassword = this.encryptionService.encryptPassword(password).unwrap();
+            user.password = hashedPassword;
             const userEntity = User.createByObject(user);
             return Ok(await this.repository.update(userId, userEntity));
         } catch (error: any) {

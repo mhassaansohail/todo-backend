@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { Result, Ok, Err } from 'oxide.ts';
-import { ZodValidationError } from '../../Errors/ZodValidationError';
+import { ZodValidationError } from './Errors/ZodValidationError';
 
-export const todoPaginationOptionsInputSchema = z.object({
+export const userPaginationOptionsInputSchema = z.object({
     pageSize: z.string({
         required_error: "Page size param is required",
         invalid_type_error: "Page size param must be a string",
@@ -12,21 +12,23 @@ export const todoPaginationOptionsInputSchema = z.object({
     pageNumber: z.string({
         required_error: "Page number param is required",
         invalid_type_error: "Page number param must be a string",
-    }).transform((value) => parseInt(value)).refine((value) => !isNaN(value) && value > 0, {
+    }).transform((value) => parseInt(value, 10)).refine((value) => !isNaN(value) && value > 0, {
         message: "Invalid Page number param",
     }),
-    title: z.string({
-        invalid_type_error: "Title must be string",
+    name: z.string({
+        invalid_type_error: "Name must be a string",
     }).optional().default(""),
-    description: z.string({
-        invalid_type_error: "Description must be string",
+    userName: z.string({
+        invalid_type_error: "Username must be a string",
+    }).optional().default(""),
+    email: z.string({
+        invalid_type_error: "Email must be a string",
     }).optional().default(""),
 });
 
-
-export const validateTodoPaginationOptions = (input: any): Result<any, Error> => {
+export const validateUserPaginationOptions = (input: any): Result<any, Error> => {
     try {
-        const searchParams = todoPaginationOptionsInputSchema.parse(input);
+        const searchParams = userPaginationOptionsInputSchema.parse(input);
         return Ok(searchParams);
     } catch (error: any) {
         if (error instanceof z.ZodError) {
