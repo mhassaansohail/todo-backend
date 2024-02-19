@@ -6,7 +6,7 @@ class Todo implements TodoAttributes {
     description: string;
     completed: boolean;
 
-    constructor(todoId: string = "NULL", title: string = "NULL", description: string = "NULL", completed: boolean = false) {
+    constructor(todoId: string, title: string, description: string, completed: boolean) {
         this.todoId = todoId;
         this.title = title;
         this.description = description;

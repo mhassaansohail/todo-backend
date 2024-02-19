@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { validateTodoIdParam, validateTodoInput, validateTodoPaginationOptions } from "./validators";
+import { validateTodoIdParam, validateTodoInput, validateTodoPaginationOptions } from "./inputValidators";
 import { injectable, inject } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
 import { TodoAttributes } from "../../APP/Domain/types/todo";
 import { TodoService } from "../../APP/Application/todo/TodoService";
-import { TodoDTO } from "../../APP/shared/DTO/todo.dto";
+import { TodoDTO } from "../DTO/todo.dto";
 
 @injectable()
 export class TodoController {
@@ -22,8 +22,8 @@ export class TodoController {
             this.logger.error(message);
             return res.status(403).json({ status: "Unsuccesful", message });
         }
-        const { offset, limit, title, description } = queryParamsValidation.unwrap();
-        const fetchTodosResult = await this.service.getTodos(offset, limit, { title, description });
+        const { pageSize, pageNumber, title, description } = queryParamsValidation.unwrap();
+        const fetchTodosResult = await this.service.getTodos(pageNumber, pageSize, { title, description });
         if (fetchTodosResult.isErr()) {
             const { message } = fetchTodosResult.unwrapErr();
             this.logger.error(message);

@@ -2,8 +2,10 @@ import { inject, injectable } from "tsyringe";
 import Todo from "../../Domain/entities/Todo";
 import { TodoRepository } from "../../Domain/repositories/TodoRepository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
-import { Ok, Err } from "oxide.ts";
-import { IUniqueIDGenerator } from "../contracts/IUniqueIDGenerator";
+import { Ok, Err, Result } from "oxide.ts";
+import { IUniqueIDGenerator } from "../ports/IUniqueIDGenerator";
+import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
+import { TodoAttributes } from "APP/Domain/types/todo";
 
 
 @injectable()
@@ -15,17 +17,18 @@ export class TodoService {
         this.idGenerator = idGenerator;
     }
 
-    async getTodos(offset: number, limit: number, conditionParams: Partial<Todo>): Promise<Ok<PaginatedCollection<Todo>> | Err<Error>> {
+    async getTodos(pageNumber: number, pageSize: number, conditionParams: Partial<Todo>): Promise<Result<PaginatedCollection<Todo>, Error>> {
         try {
             const totalTodoRows = await this.repository.count(conditionParams);
-            const todoRows = await this.repository.fetchAll(offset, limit, conditionParams);
-            return Ok(new PaginatedCollection(todoRows, totalTodoRows, offset, limit));
+            const paginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
+            const todoRows = await this.repository.fetchAll(paginationOptions.offset, paginationOptions.limit, conditionParams);
+            return Ok(new PaginatedCollection(todoRows, totalTodoRows, pageNumber, pageSize));
         } catch (error: any) {
             return Err(new Error(error.message));
         }
     }
 
-    async getTodoById(todoId: string): Promise<Ok<Todo> | Err<Error>> {
+    async getTodoById(todoId: string): Promise<Result<Todo, Error>> {
         try {
             return Ok(await this.repository.fetchById(todoId));
         } catch (error: any) {
@@ -33,7 +36,7 @@ export class TodoService {
         }
     }
 
-    async addTodo(todo: Todo): Promise<Ok<Todo> | Err<Error>> {
+    async addTodo(todo: TodoAttributes): Promise<Result<Todo, Error>> {
         try {
             const todoId = this.idGenerator.getUniqueID();
             todo.todoId = todoId;
@@ -44,7 +47,7 @@ export class TodoService {
         }
     }
 
-    async updateTodo(todoId: string, todo: Todo): Promise<Ok<Todo> | Err<Error>> {
+    async updateTodo(todoId: string, todo: TodoAttributes): Promise<Result<Todo, Error>> {
         try {
             const todoEntity = Todo.createByObject(todo)
             return Ok(await this.repository.update(todoId, todoEntity));
@@ -53,7 +56,7 @@ export class TodoService {
         }
     }
 
-    async deleteTodo(todoId: string): Promise<Ok<Todo> | Err<Error>> {
+    async deleteTodo(todoId: string): Promise<Result<Todo, Error>> {
         try {
             return Ok(await this.repository.remove(todoId));
         } catch (error: any) {
