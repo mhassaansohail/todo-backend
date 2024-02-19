@@ -1,5 +1,6 @@
-import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import { oAuthService } from '../services';
+import { authService } from '../services';
 
 export class AuthMiddleware {
 
@@ -14,20 +15,36 @@ export class AuthMiddleware {
                     return res.status(401).json({ error: "Invalid token provided." });
                 }
                 const token = authHeaderParts[1];
-                await AuthMiddleware.verifyToken(token);
-                next();
+                let isVerified = await AuthMiddleware.verifyJWTToken(token);
+                if (isVerified) {
+                    next();
+                } else {
+                    isVerified = await AuthMiddleware.verifyOAuthToken(token);
+                    if (isVerified) {
+                        next();
+                    } else {
+                        return res.status(401).json({ message: "User unauthorized." });
+                    }
+                }
             }
         } catch (error) {
-            return res.status(401).json({ error: error });
+            return res.status(401).json({ message: "User unauthorized." });
         }
     }
 
-    private static verifyToken = async (token: string): Promise<object> => {
+    private static verifyOAuthToken = async (token: string): Promise<any> => {
         try {
-            const secretKey: string = String(process.env.SECRET_KEY);
-            return Object(jwt.verify(token, secretKey));
+            return await oAuthService.verifyToken(token);
         } catch (error) {
-            throw error;
+            return false;
+        }
+    }
+
+    private static verifyJWTToken = async (token: string): Promise<any> => {
+        try {
+            return await authService.verifyToken(token);
+        } catch (error) {
+            return false;
         }
     }
 }

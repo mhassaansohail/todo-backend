@@ -1,35 +1,37 @@
 import { Request, Response } from 'express';
-import { authInputSchema } from './validators';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { authCodeInputSchema, authInputSchema } from './validators';
+import { authService } from '../services';
 
 export class AuthController {
 
-    public static login = async (req: Request, res: Response): Promise<Response> => {
-        const { userName, password } = authInputSchema.parse(req.body);
+    static login = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const isValidUser = await AuthController.validateUser(userName, password);
-            if (!isValidUser) {
-                return res.status(401).json({ message: 'Invalid username or password' });
+            const bodyKeysCount = Object.keys(req.body).length;
+            if (bodyKeysCount === 2) {
+                const { userName, password } = authInputSchema.parse(req.body);
+                const token = await authService.loginByCredentials(userName, password);
+                if (!token) {
+                    return res.status(401).json({ message: 'Invalid username or password' });
+                }
+                return res.status(200).json({ token });
+            } else if (bodyKeysCount === 0) {
+                const consentScreenUrl = await authService.loginWithOAuth();
+                return res.status(200).json({ consentScreenUrl });
+            } else {
+                return res.status(401).json({ message: 'Authentication failed' });
             }
-            const secretKey: string = String(process.env.SECRET_KEY);
-            const token = jwt.sign({ userName }, secretKey, { expiresIn: '6h' });
-            return res.status(200).json({ message: "User logged in.", token });
         } catch (error) {
             return res.status(401).json({ message: 'Authentication failed' });
         }
     }
 
-    private static validateUser = async(userName: string, password: string): Promise<boolean> => {
+    static callback = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const user = await prisma.user.findUnique({
-                where: { userName: userName }
-            });
-            return bcrypt.compareSync(password, String(user?.password));
+            const { code } = authCodeInputSchema.parse(req.query);
+            const token = await authService.callback(code);
+            return res.json({ token });
         } catch (error) {
-            throw error;
+            return res.status(401).json({ message: 'Authentication failed' });
         }
     }
 }
