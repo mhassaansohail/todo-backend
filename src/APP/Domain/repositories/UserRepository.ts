@@ -1,7 +1,6 @@
 import { BaseRepository, RepositoryResult } from "@carbonteq/hexapp";
 import { Result } from "@carbonteq/fp";
-import { PaginatedCollection } from "../pagination/PaginatedCollection";
-import { InvalidOperationOnUser } from "../exceptions/user/InvalidOperationOnUser";
+import { InvalidOperationOnUser } from "../../Infrastructure/adapters/repositories/exceptions/user/InvalidOperationOnUser";
 import User from "../entities/User";
 import { UserAttributes } from "../attributes/user";
 

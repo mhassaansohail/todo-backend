@@ -6,7 +6,7 @@ import { Logger } from "../../../logger/Logger";
 import { TodoAttributes } from "APP/Domain/attributes/todo";
 import { RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
 import { Result } from '@carbonteq/fp'
-import { InvalidOperationOnTodo, TodoNotFound } from "../../../../Domain/exceptions/todo/TodoNotFound.exception";
+import { InvalidOperationOnTodo, TodoNotFound } from "../exceptions/todo/TodoNotFound.exception";
 import { TodoDTO } from "../DTO/todo.dto";
 
 const prisma = new PrismaClient();

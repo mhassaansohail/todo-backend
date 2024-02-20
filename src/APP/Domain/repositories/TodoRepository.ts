@@ -1,7 +1,7 @@
 import { BaseRepository, NotFoundError, RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
 import Todo from "../entities/Todo";
 import { Result } from "@carbonteq/fp";
-import { InvalidOperationOnTodo } from "../exceptions/todo/TodoNotFound.exception";
+import { InvalidOperationOnTodo } from "../../Infrastructure/adapters/repositories/exceptions/todo/TodoNotFound.exception";
 import { PaginatedCollection } from "../pagination/PaginatedCollection";
 import { TodoAttributes } from "../attributes/todo";
 
