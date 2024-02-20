@@ -3,17 +3,21 @@ import User from "../../../../Domain/entities/User";
 import { UserRepository } from "../../../../Domain/repositories/UserRepository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../../logger/Logger";
+import { RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
+import { Result } from "@carbonteq/fp";
+import { UserDTO } from "../DTO/user.dto";
 
 const prisma = new PrismaClient();
 
 @injectable()
-export class PrismaUserRepository implements UserRepository {
+export class PrismaUserRepository extends UserRepository {
     private logger: Logger;
     constructor(@inject("Logger") logger: Logger) {
+        super()
         this.logger = logger;
     }
 
-    async count(queryParams: Partial<User>): Promise<number> {
+    async countTotalRows(queryParams: Partial<User>): Promise<RepositoryResult<number>> {
         try {
             const conditions = {
                 OR: [
@@ -24,14 +28,14 @@ export class PrismaUserRepository implements UserRepository {
             const totalRows = await prisma.user.count({
                 where: conditions
             });
-            return totalRows;
+            return Result.Ok(totalRows);
         } catch (error: any) {
             this.logger.error(error.message);
-            throw new Error(error.message);
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async fetchAll(offset: number, limit: number, queryParams: Partial<User>): Promise<User[]> {
+    async fetchAllPaginated(offset: number, limit: number, queryParams: Partial<User>): Promise<RepositoryResult<User[]>> {
         try {
             const conditions = {
                 OR: [
@@ -45,29 +49,30 @@ export class PrismaUserRepository implements UserRepository {
                 where: conditions
             });
 
-            return fetchedUsers.map(userObj => User.createByObject(userObj));
+            return Result.Ok(fetchedUsers.map(userObj => User.fromObj(UserDTO.toDomain(userObj))));
         } catch (error: any) {
             this.logger.error(error.message);
-            throw new Error(error.message);
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async fetchById(userId: string): Promise<User> {
+    async fetchById(userId: UUIDVo): Promise<RepositoryResult<User>> {
         try {
+            const serializedUserId = userId.serialize();
             const fetchedUser = await prisma.user.findUnique({
-                where: { userId }
+                where: { userId: serializedUserId }
             });
             if (fetchedUser !== null) {
-                return User.createByObject(fetchedUser);
+                return Result.Ok(User.fromObj(UserDTO.toDomain(fetchedUser)));
             }
-            throw new Error("User not found.");
+            return Result.Err(new Error("User not found."));
         } catch (error: any) {
             this.logger.error(error.message);
-            throw new Error(error.message);
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async fetchByUserNameOrEmail(userName?: string, email?: string): Promise<User> {
+    async fetchByUserNameOrEmail(userName?: string, email?: string): Promise<RepositoryResult<User>> {
         try {
             const fetchedUser = await prisma.user.findUnique({
                 where: {
@@ -76,51 +81,50 @@ export class PrismaUserRepository implements UserRepository {
                 }
             });
             if (fetchedUser !== null) {
-                return User.createByObject(fetchedUser);
+                return Result.Ok(User.fromObj(UserDTO.toDomain(fetchedUser)));
             }
-            this.logger.error("User not found.");
-            throw new Error("User not found.");
+            return Result.Err(new Error("User not found."));
         } catch (error: any) {
             this.logger.error(error.message);
-            throw new Error(error.message);
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async create(user: User): Promise<User> {
+    async insert(user: User): Promise<RepositoryResult<User>> {
         try {
             const createdUser = await prisma.user.create({
                 data: user
             });
-            return User.createByObject(createdUser);
+            return Result.Ok(User.fromObj(UserDTO.toDomain(createdUser)));
         } catch (error: any) {
             this.logger.error(error.message);
-            throw new Error(error.message);
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async update(userId: string, user: User): Promise<User> {
+    async update(user: User): Promise<RepositoryResult<User>> {
         try {
-            const { userId: omittedUserId, ...persistableUser } = user;
+            const { Id: userId, ...persistableUser } = user;
             const updatedUser = await prisma.user.update({
-                where: { userId },
+                where: { userId: userId.serialize() },
                 data: persistableUser
             });
-            return User.createByObject(updatedUser);
+            return Result.Ok(User.fromObj(UserDTO.toDomain(updatedUser)));
         } catch (error: any) {
             this.logger.error(error.message);
-            throw new Error(error.message);
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async remove(userId: string): Promise<User> {
+    async deleteById(userId: UUIDVo): Promise<RepositoryResult<User>> {
         try {
             const removedUser = await prisma.user.delete({
-                where: { userId }
+                where: { userId: userId.serialize() }
             });
-            return User.createByObject(removedUser);
+            return Result.Ok(User.fromObj(UserDTO.toDomain(removedUser)));
         } catch (error: any) {
             this.logger.error(error.message);
-            throw new Error(error.message);
+            return Result.Err(new Error(error.message));
         }
     }
 }

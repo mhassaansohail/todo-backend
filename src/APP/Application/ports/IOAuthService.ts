@@ -1,4 +1,4 @@
-import { Ok, Err, Result } from "oxide.ts";
+import { Result } from "@carbonteq/fp";
 
 export interface IOAuthService {
     generateAuthURL(scopes: string[]): Promise<Result<string, Error>>

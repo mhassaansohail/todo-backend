@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "oxide.ts";
+import { Result } from "@carbonteq/fp";
 
 export interface IJWTAuthService {
     genrateTokenFromParam(userName: string): Result<string, Error>;

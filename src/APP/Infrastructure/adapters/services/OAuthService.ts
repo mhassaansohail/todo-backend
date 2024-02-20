@@ -1,4 +1,4 @@
-import { Ok, Err, Result } from 'oxide.ts';
+import { Result } from '@carbonteq/fp';
 import { google } from 'googleapis';
 import fs from 'fs';
 import { injectable } from 'tsyringe';
@@ -55,9 +55,9 @@ export class OAuthService implements IOAuthService {
     }
     async generateAuthURL(scopes: string[]): Promise<Result<string, Error>> {
         try {
-            return Ok(this.oAuthClient.generateAuthUrl({ access_type: 'offline', scope: scopes }));
+            return Result.Ok(this.oAuthClient.generateAuthUrl({ access_type: 'offline', scope: scopes }));
         } catch (error) {
-            return Err(new Error('Error generating authenticaion URL for the given scopes.'));
+            return Result.Err(new Error('Error generating authenticaion URL for the given scopes.'));
         }
     }
 
@@ -65,9 +65,9 @@ export class OAuthService implements IOAuthService {
         try {
             const { tokens } = await this.oAuthClient.getToken(code);
             // this.oAuthClient.setCredentials(tokens);
-            return Ok(tokens);
+            return Result.Ok(tokens);
         } catch (error) {
-            return Err(new Error('Error exchanging code for token'));
+            return Result.Err(new Error('Error exchanging code for token'));
         }
     }
 
@@ -77,9 +77,9 @@ export class OAuthService implements IOAuthService {
                 idToken: token,
                 audience: this.oAuthClient._clientId,
             });
-                return Ok(ticket.getPayload());
+                return Result.Ok(ticket.getPayload());
         } catch (error) {
-            return Err(new Error('Invalid token'));
+            return Result.Err(new Error('Invalid token'));
           }
     }
 }

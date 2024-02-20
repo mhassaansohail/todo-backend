@@ -3,7 +3,7 @@ import { Result, Err, Ok } from 'oxide.ts';
 import { ZodValidationError } from './Errors/ZodValidationError';
 
 export const todoInputSchema = z.object({
-    id: z.string({
+    todoId: z.string({
         invalid_type_error: "Id must be a string",
     }).optional(),
     title: z.string({

@@ -1,24 +1,85 @@
-import { TodoAttributes } from "../types/todo";
+import { BaseEntity, DateTime, UUIDVo } from "@carbonteq/hexapp";
+import { TodoAttributes } from "../attributes/todo";
 
-class Todo implements TodoAttributes {
-    todoId: string;
+interface ITodo {
+    Id: string;
     title: string;
     description: string;
     completed: boolean;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
 
-    constructor(todoId: string, title: string, description: string, completed: boolean) {
-        this.todoId = todoId;
-        this.title = title;
-        this.description = description;
-        this.completed = completed;
+interface IUpdateTodo {
+    title: string;
+    description: string;
+    completed: boolean;
+}
+
+
+
+export class Todo extends BaseEntity implements TodoAttributes {
+    private _todoId: UUIDVo;
+    private _title: string;
+    private _description: string;
+    private _completed: boolean;
+
+    protected constructor(title: string, description: string, completed: boolean) {
+        super();
+        this._todoId = UUIDVo.new();
+        this._title = title;
+        this._description = description;
+        this._completed = completed;
     }
 
-    static createByParams(todoId: string, title: string, description: string, completed: boolean): Todo {
-        return new Todo(todoId, title, description, completed);
+    get Id(): UUIDVo {
+        return this._todoId;
     }
 
-    static createByObject({ todoId, title, description, completed }: TodoAttributes): Todo {
-        return new Todo(todoId, title, description, completed);
+    get title(): string {
+        return this._title;
+    }
+
+    get description(): string {
+        return this._description;
+    }
+
+    get completed(): boolean {
+        return this._completed;
+    }
+
+    static create(title: string, description: string, completed: boolean): Todo {
+        return new Todo(title, description, completed);
+    }
+
+    static from(todoObj: TodoAttributes): Todo {
+        const { title, description, completed } = todoObj;
+        const todoEntity = new Todo(title, description, completed);
+        todoEntity._copyBaseProps(todoObj);
+        return todoEntity;
+    }
+
+    static fromObj(todoObj: ITodo): Todo {
+        const { title, description, completed } = todoObj;
+        const todoEntity = new Todo(title, description, completed);
+        todoEntity._fromSerialized(todoObj);
+        return todoEntity;
+    }
+
+    serialize() {
+        return {
+            ...super._serialize(),
+            title: this.title,
+            description: this.description,
+            completed: this.completed
+        };
+    }
+
+    update({ title, description, completed }: IUpdateTodo) {
+        this._title = title;
+        this._description = description;
+        this._completed = completed;
+        this.markUpdated();
     }
 }
 

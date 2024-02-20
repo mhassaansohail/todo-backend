@@ -22,7 +22,7 @@ export class AuthMiddleware {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const token = authHeaderValidationResult.unwrap();
-        let isVerifiedTokenResult = await this.service?.verifyToken(token);
+        let isVerifiedTokenResult = await this.service?.verifyToken({ token });
         if (isVerifiedTokenResult?.isErr()) {
             this.logger?.error("Invalid Token.");
             return res.status(401).json({ message: "Invalid Token." });

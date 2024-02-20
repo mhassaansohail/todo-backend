@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { validateTodoIdParam, validateTodoInput, validateTodoPaginationOptions } from "./inputValidators";
 import { injectable, inject } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
-import { TodoAttributes } from "../../APP/Domain/types/todo";
+import { TodoAttributes } from "../../APP/Domain/attributes/todo";
 import { TodoService } from "../../APP/Application/todo/TodoService";
-import { TodoDTO } from "../DTO/todo.dto";
+import { TodoDTO } from "./DTO/todo/todo.dto";
+import { GetPaginatedTodosDTO } from "./DTO/todo/GetPaginatedTodos.dto";
 
 @injectable()
 export class TodoController {
@@ -23,7 +24,7 @@ export class TodoController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const { pageSize, pageNumber, title, description } = queryParamsValidation.unwrap();
-        const fetchTodosResult = await this.service.getTodos(pageNumber, pageSize, { title, description });
+        const fetchTodosResult = await this.service.getTodos(GetPaginatedTodosDTO.toApp({ pageNumber, pageSize, title, description }));
         if (fetchTodosResult.isErr()) {
             const { message } = fetchTodosResult.unwrapErr();
             this.logger.error(message);
@@ -40,7 +41,7 @@ export class TodoController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const { todoId } = todoIdValidationResult.unwrap();
-        const fetchedTodoResult = await this.service.getTodoById(todoId);
+        const fetchedTodoResult = await this.service.getTodoById({ todoId });
         if (fetchedTodoResult.isErr()) {
             const { message } = fetchedTodoResult.unwrapErr();
             this.logger.error(message);
@@ -59,7 +60,7 @@ export class TodoController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const todoInput = todoInputValidationResult.unwrap();
-        const createdTodoResult = await this.service.addTodo(todoInput as TodoAttributes);
+        const createdTodoResult = await this.service.addTodo(todoInput);
         if (createdTodoResult.isErr()) {
             const { message } = createdTodoResult.unwrapErr();
             this.logger.error(message);
@@ -85,7 +86,7 @@ export class TodoController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const todoInput = todoInputValidationResult.unwrap();
-        const updatedTodoResult = await this.service.updateTodo(todoId, { todoId, ...todoInput });
+        const updatedTodoResult = await this.service.updateTodo({ todoId, ...todoInput });
         if (updatedTodoResult.isErr()) {
             const { message } = updatedTodoResult.unwrapErr();
             this.logger.error(message);
@@ -102,7 +103,7 @@ export class TodoController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const { todoId } = todoIdValidationResult.unwrap();
-        const deletedTodoResult = await this.service.deleteTodo(todoId);
+        const deletedTodoResult = await this.service.deleteTodo({ todoId });
         if (deletedTodoResult.isErr()) {
             const { message } = deletedTodoResult.unwrapErr();
             this.logger.error(message);

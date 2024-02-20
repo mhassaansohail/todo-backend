@@ -4,8 +4,9 @@ import bcrypt from 'bcrypt';
 import { UserService } from "../../APP/Application/user/UserService";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
-import { UserAttributes } from "../../APP/Domain/types/user";
-import { UserDTO } from "../DTO/user.dto";
+import { UserAttributes } from "../../APP/Domain/attributes/user";
+import { UserDTO } from "./DTO/user/user.dto";
+import { GetPaginatedUsersDTO } from "./DTO/user/GetPaginatedUsers.dto";
 
 @injectable()
 export class UserController {
@@ -24,7 +25,7 @@ export class UserController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const { pageSize, pageNumber, name, email, userName } = queryParamsValidation.unwrap();
-        const fetchedUsersResult = await this.service.getUsers(pageNumber, pageSize, { name, email, userName });
+        const fetchedUsersResult = await this.service.getUsers(GetPaginatedUsersDTO.toApp({ pageNumber, pageSize, name, email, userName }));
         if (fetchedUsersResult.isErr()) {
             const { message } = fetchedUsersResult.unwrapErr();
             this.logger.error(message);
@@ -83,7 +84,7 @@ export class UserController {
             return res.status(403).json({ status: "Unsuccesful", message });
         }
         const userInput = userInputValidationResult.unwrap();
-        const updatedUserResult = await this.service.updateUser(userId, { userId, ...userInput });
+        const updatedUserResult = await this.service.updateUser({ userId, ...userInput });
         if (updatedUserResult.isErr()) {
             const { message } = updatedUserResult.unwrapErr();
             this.logger.error(message);

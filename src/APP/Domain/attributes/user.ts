@@ -1,5 +1,6 @@
-export interface UserAttributes {
-    userId: string;
+import { IEntity } from "@carbonteq/hexapp";
+
+export interface UserAttributes extends IEntity {
     name: string;
     email: string;
     userName: string;

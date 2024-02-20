@@ -1,6 +1,6 @@
 import { IJWTAuthService } from "../../../Application/ports/IJWTAuthService";
 import jwt from "jsonwebtoken"
-import { Err, Ok, Result } from "oxide.ts";
+import { Result } from "@carbonteq/fp";
 import { config } from '../../config';
 const secretKey = String(config.jwtSecretKey);
 
@@ -11,17 +11,17 @@ export class JWTService implements IJWTAuthService {
     }
     genrateTokenFromParam = (userName: string): Result<string, Error> => {
         try {
-            return Ok(this.client.sign({ userName }, secretKey, { expiresIn: '6h' }));
+            return Result.Ok(this.client.sign({ userName }, secretKey, { expiresIn: '6h' }));
         } catch (error: any) {
-            return Err(new Error(error.message))
+            return Result.Err(new Error(error.message))
         }
     }
 
     verifyToken = (token: string): Result<any, Error> => {
         try {
-            return Ok(this.client.verify(token, secretKey));
+            return Result.Ok(this.client.verify(token, secretKey));
         } catch (error: any) {
-            return Err(new Error(error.message))
+            return Result.Err(new Error(error.message))
         }
 
     }

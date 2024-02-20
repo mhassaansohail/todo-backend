@@ -1,4 +1,4 @@
-import { Result } from "oxide.ts";
+import { Result } from "@carbonteq/fp";
 
 export interface IEncryptionService {
     encryptPassword(str: string): Result<string, Error>;

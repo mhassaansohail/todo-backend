@@ -1,82 +1,89 @@
+import { inject, injectable } from "tsyringe";
+import { Result } from "@carbonteq/fp";
 import User from "../../Domain/entities/User";
 import { UserRepository } from "../../Domain/repositories/UserRepository";
-import { UserAttributes } from "../../Domain/types/user";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
-import { Ok, Err, Result } from "oxide.ts";
-import { inject, injectable } from "tsyringe";
-import { IUniqueIDGenerator } from "../ports/IUniqueIDGenerator";
 import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
 import { IEncryptionService } from "../ports/IEncryptionService";
+import { UUIDVo } from "@carbonteq/hexapp";
+import { UserUpdateDTO } from "./DTO/UserUpdate.dto";
+import { IFetchPaginatedUsers } from "./DTO/IFetchPaginatedUsers.dto";
+import { IFetchUserById } from "./DTO/IFetchUserById.dto";
+import { IFetchUserByUsername } from "./DTO/IFetchUserByUsername.dto";
+import { ICreateUser } from "./DTO/ICreateUser.dto";
+import { IUpdateUser } from "./DTO/IUpdateUser.dto";
+import { IDeleteUserById } from "./DTO/IDeleteUserById.dto";
 
 @injectable()
 export class UserService {
     private repository: UserRepository;
-    private idGenerator: IUniqueIDGenerator;
     private encryptionService: IEncryptionService;
-    constructor(@inject("UniqueIDGenerator") idGenerator: IUniqueIDGenerator, @inject("UserRepository") repository: UserRepository, @inject("EncryptionService") encryptionService: IEncryptionService) {
+    constructor(
+        @inject("UserRepository") repository: UserRepository, @inject("EncryptionService") encryptionService: IEncryptionService
+    ) {
         this.repository = repository;
-        this.idGenerator = idGenerator;
         this.encryptionService = encryptionService;
     }
 
-    async getUsers(pageSize: number, pageNumber: number, conditionParams: Partial<UserAttributes>): Promise<Result<PaginatedCollection<User>, Error>> {
+    async getUsers({ pageSize, pageNumber, conditionParams }: IFetchPaginatedUsers): Promise<Result<PaginatedCollection<User>, Error>> {
         try {
-            const totalUserRows = await this.repository.count(conditionParams);
+            const totalUserRows = (await this.repository.countTotalRows(conditionParams)).unwrap();
             const paginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
-            const userRows = await this.repository.fetchAll(paginationOptions.offset, paginationOptions.limit, conditionParams);
-            return Ok(new PaginatedCollection(userRows, totalUserRows, pageNumber, pageSize));
+            const userRows = (await this.repository.fetchAllPaginated(paginationOptions.offset, paginationOptions.limit, conditionParams)).unwrap();
+            return Result.Ok(new PaginatedCollection(userRows, totalUserRows, pageNumber, pageSize));
         } catch (error: any) {
-            return Err(new Error(error.message));
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async getUserById(userId: string): Promise<Result<User, Error>> {
+    async getUserById({ userId }: IFetchUserById): Promise<Result<User, Error>> {
         try {
-            return Ok(await this.repository.fetchById(userId));
+            const userIdVo = UUIDVo.fromStrNoValidation(userId);
+            return Result.Ok((await this.repository.fetchById(userIdVo)).unwrap());
         } catch (error: any) {
-            return Err(new Error(error.message));
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async getUserByUsername(userName: string): Promise<Result<User, Error>> {
+    async getUserByUsername({ userName }: IFetchUserByUsername): Promise<Result<User, Error>> {
         try {
-            return Ok(await this.repository.fetchByUserNameOrEmail(userName));
+            return Result.Ok((await this.repository.fetchByUserNameOrEmail(userName)).unwrap());
         } catch (error: any) {
-            return Err(new Error(error.message));
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async createUser(user: UserAttributes): Promise<Result<User, Error>> {
-        try {
-            const userId = this.idGenerator.getUniqueID();
-            user.userId = userId;
-            const password = user.password;
-            const hashedPassword = this.encryptionService.encryptPassword(password).unwrap();
-            user.password = hashedPassword;
-            const userEntity = User.createByObject({ ...user });
-            return Ok(await this.repository.create(userEntity));
-        } catch (error: any) {
-            return Err(new Error(error.message));
-        }
-    }
-
-    async updateUser(userId: string, user: UserAttributes): Promise<Result<User, Error>> {
+    async createUser(user: ICreateUser): Promise<Result<User, Error>> {
         try {
             const password = user.password;
             const hashedPassword = this.encryptionService.encryptPassword(password).unwrap();
             user.password = hashedPassword;
-            const userEntity = User.createByObject(user);
-            return Ok(await this.repository.update(userId, userEntity));
+            const userEntity = User.create(user.name, user.userName, user.email, user.password, user.age);
+            return Result.Ok((await this.repository.insert(userEntity)).unwrap());
         } catch (error: any) {
-            return Err(new Error(error.message));
+            return Result.Err(new Error(error.message));
         }
     }
 
-    async deleteUser(userId: string): Promise<Result<User, Error>> {
+    async updateUser(user: IUpdateUser): Promise<Result<User, Error>> {
         try {
-            return Ok(await this.repository.remove(userId));
+            const password = user.password;
+            const hashedPassword = this.encryptionService.encryptPassword(password).unwrap();
+            user.password = hashedPassword;
+            const toUpdateUser = (await this.repository.fetchById(UUIDVo.fromStrNoValidation(user.userId))).unwrap();
+            toUpdateUser.update(user);
+            return Result.Ok((await this.repository.update(toUpdateUser)).unwrap());
         } catch (error: any) {
-            return Err(new Error(error.message));
+            return Result.Err(new Error(error.message));
+        }
+    }
+
+    async deleteUser({ userId }: IDeleteUserById): Promise<Result<User, Error>> {
+        try {
+            const userIdVo = UUIDVo.fromStrNoValidation(userId);
+            return Result.Ok((await this.repository.deleteById(userIdVo)).unwrap());
+        } catch (error: any) {
+            return Result.Err(new Error(error.message));
         }
     }
 }

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { TodoAttributes } from '../../Domain/types/todo';
+import { TodoAttributes } from '../../Domain/attributes/todo';
 
 export function createRandomTodo(): TodoAttributes {
   return {
