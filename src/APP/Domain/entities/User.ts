@@ -22,7 +22,6 @@ interface UpdateUser {
 }
 
 class User extends BaseEntity implements UserAttributes {
-    private _userId: UUIDVo;
     private _name: string;
     private _email: string;
     private _userName: string;
@@ -32,16 +31,11 @@ class User extends BaseEntity implements UserAttributes {
     constructor(name: string, userName: string, email: string, password: string, age: number) {
         super();
         this.enforceMinAgeLimit(age);
-        this._userId = UUIDVo.new();
         this._name = name;
         this._userName = userName;
         this._password = password;
         this._email = email;
         this._age = age;
-    }
-
-    get Id(): UUIDVo {
-        return this._userId;
     }
 
     get name(): string {

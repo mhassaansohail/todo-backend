@@ -1,6 +1,6 @@
-import { BaseException } from "../BaseException";
+import { InvalidOperation } from "@carbonteq/hexapp";
 
-export class InsufficientPaginatedRowsException extends BaseException {
+export class InsufficientPaginatedRowsException extends InvalidOperation {
     constructor(message: string) {
         super(message);
     }

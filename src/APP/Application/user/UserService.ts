@@ -6,7 +6,6 @@ import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection
 import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
 import { IEncryptionService } from "../ports/IEncryptionService";
 import { UUIDVo } from "@carbonteq/hexapp";
-import { UserUpdateDTO } from "./DTO/UserUpdate.dto";
 import { IFetchPaginatedUsers } from "./DTO/IFetchPaginatedUsers.dto";
 import { IFetchUserById } from "./DTO/IFetchUserById.dto";
 import { IFetchUserByUsername } from "./DTO/IFetchUserByUsername.dto";

@@ -22,8 +22,8 @@ export class AuthController {
         }
         const bodyKeysCount = Object.keys(authInputValidationResult.unwrap()).length;
         if (bodyKeysCount === 2) {
-            const { userName, password } = authInputValidationResult.unwrap();
-            const authenticationTokenResult = await this.service?.loginByCredentials(userName, password);
+            const userCredentials = authInputValidationResult.unwrap();
+            const authenticationTokenResult = await this.service?.loginByCredentials(userCredentials);
             if (authenticationTokenResult.isErr()) {
                 const { message } = authenticationTokenResult.unwrapErr();
                 this.logger.error(message);

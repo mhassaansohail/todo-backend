@@ -6,16 +6,19 @@ import { Logger } from "../../../logger/Logger";
 import { TodoAttributes } from "APP/Domain/attributes/todo";
 import { RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
 import { Result } from '@carbonteq/fp'
-import { InvalidOperationOnTodo, TodoNotFound } from "../exceptions/todo/TodoNotFound.exception";
+import { TodoNotFound } from "../../../../Domain/exceptions/todo/TodoNotFound.exception";
 import { TodoDTO } from "../DTO/todo.dto";
-
-const prisma = new PrismaClient();
+import { DbMalfunction } from "../exceptions/shared/DbMalfunction.exception";
 
 @injectable()
 export class PrismaTodoRepository extends TodoRepository {
-    constructor(@inject("Logger") private logger: Logger) {
+    private prisma;
+    private logger: Logger
+
+    constructor(prisma: any, @inject("Logger") logger: Logger) {
         super();
         this.logger = logger;
+        this.prisma = prisma || new PrismaClient();
     }
 
     async countTotalRows(conditionParams: Partial<TodoAttributes>): Promise<RepositoryResult<number>> {
@@ -26,12 +29,12 @@ export class PrismaTodoRepository extends TodoRepository {
                     { description: { contains: conditionParams.description } },
                 ],
             }
-            return Result.Ok(await prisma.todo.count({
+            return Result.Ok(await this.prisma.todo.count({
                 where: conditions
             }));
         } catch (error: any) {
             this.logger.error(error.message);
-            return Result.Err(new InvalidOperationOnTodo());
+            return Result.Err(new DbMalfunction("countTotalRows"));
         }
     }
 
@@ -43,15 +46,15 @@ export class PrismaTodoRepository extends TodoRepository {
                     { description: { contains: queryParams.description } },
                 ],
             }
-            const fetchedTodos = await prisma.todo.findMany({
+            const fetchedTodos = await this.prisma.todo.findMany({
                 skip: offset,
                 take: limit,
                 where: conditions
             });
-            return Result.Ok(fetchedTodos.map((fetchedTodo) => Todo.fromObj(TodoDTO.toDomain(fetchedTodo))));
+            return Result.Ok(fetchedTodos.map((fetchedTodo: any) => Todo.fromObj(TodoDTO.toDomain(fetchedTodo))));
         } catch (error: any) {
             this.logger.error(error.message);
-            return Result.Err(new InvalidOperationOnTodo());
+            return Result.Err(new DbMalfunction("fetchAllPaginated"));
         }
 
     }
@@ -59,55 +62,56 @@ export class PrismaTodoRepository extends TodoRepository {
     async fetchById(todoId: UUIDVo): Promise<RepositoryResult<Todo>> {
         try {
             const serializedTodoId: string = todoId.serialize();
-            const fetchedTodo = await prisma.todo.findUnique({
+            const fetchedTodo = await this.prisma.todo.findUnique({
                 where: { todoId: serializedTodoId }
             });
-            if (fetchedTodo !== null) {
-                return Result.Ok(Todo.fromObj(TodoDTO.toDomain(fetchedTodo)))
-            }
-            return Result.Err(new TodoNotFound(todoId.serialize()));
+            return fetchedTodo ? Result.Ok(Todo.fromObj(TodoDTO.toDomain(fetchedTodo))) : Result.Err(new TodoNotFound(todoId.serialize()));
         } catch (error: any) {
             this.logger.error(error.message);
-            throw new Error(error.message);
+            return Result.Err(new DbMalfunction("fetchById"));
         }
     }
 
     async insert(todo: Todo): Promise<RepositoryResult<Todo>> {
         try {
-            const addedTodo = await prisma.todo.create({
-                data: todo.serialize()
+            const { Id: todoId, ...todoAttributes } = todo.serialize();
+            const addedTodo = await this.prisma.todo.create({
+                data: {
+                    todoId,
+                    ...todoAttributes
+                }
             });
             return Result.Ok(Todo.fromObj(TodoDTO.toDomain(addedTodo)));
         } catch (error: any) {
             this.logger.error(error.message);
-            return Result.Err(new InvalidOperationOnTodo());
+            return Result.Err(new DbMalfunction("insert"));
         }
     }
 
     async update(todo: Todo): Promise<RepositoryResult<Todo>> {
         try {
-            const todoId = todo.Id.serialize();
-            const updateTodo = await prisma.todo.update({
+            const { Id: todoId, ...todoAttributes } = todo.serialize();
+            const updateTodo = await this.prisma.todo.update({
                 where: { todoId },
-                data: todo
+                data: todoAttributes
             });
             return Result.Ok(Todo.fromObj(TodoDTO.toDomain(updateTodo)));
         } catch (error: any) {
             this.logger.error(error.message);
-            return Result.Err(new TodoNotFound(todo.Id.serialize()));
+            return Result.Err(new DbMalfunction("update"));
         }
     }
 
     async deleteById(todoId: UUIDVo): Promise<RepositoryResult<Todo>> {
         try {
             const serializedTodoId = todoId.serialize()
-            const removedTodo = await prisma.todo.delete({
+            const removedTodo = await this.prisma.todo.delete({
                 where: { todoId: serializedTodoId }
             });
             return Result.Ok(Todo.fromObj(TodoDTO.toDomain(removedTodo)));
         } catch (error: any) {
             this.logger.error(error.message);
-            return Result.Err(new TodoNotFound(todoId.serialize()));
+            return Result.Err(new DbMalfunction("deleteById"));
         }
     }
 }

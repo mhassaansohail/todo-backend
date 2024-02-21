@@ -1,6 +1,6 @@
-import { BaseException } from "../BaseException";
+import { ValidationError } from "@carbonteq/hexapp";
 
-export class PaginationOptionsException extends BaseException {
+export class PaginationOptionsException extends ValidationError {
     constructor(message: string) {
         super(message);
     }

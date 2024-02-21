@@ -22,7 +22,18 @@ function getAge(): number {
     return age;
 }
 
-export function createRandomUser(): UserAttributes {
+interface IUser {
+    userId: string;
+    name: string;
+    email: string;
+    userName: string;
+    password: string;
+    age: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export function createRandomUser(): IUser {
     const plainPassword = faker.internet.password();
     const hashedPassword = generateHashedPassword(plainPassword);
     return {
@@ -32,5 +43,7 @@ export function createRandomUser(): UserAttributes {
         email: faker.internet.email(),
         age: getAge(),
         password: hashedPassword,
+        createdAt: faker.datatype.datetime(),
+        updatedAt: faker.datatype.datetime()
     };
 }

@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    container_name: todo-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql://root:root@db:3307/todo
+      HOST: localhost
+      HTTP_PORT: 3000
+      TOKEN_SECRET_KEY: "ABC!@#"
+      SALT_ROUNDS: 10
+      OAUTH_KEYS_FILE: "oAuth2.keys.json"
+      LOG_LEVEL: info
+      SWAGGER_DOC_FILE: "./src/HTTP/swagger/swaggerDoc.json"
+      EMAIL_USER: "hassaan.sohail@carbonteq.com"
+      EMAIL_PASS: "Carbonteq123"
+      SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/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"
+
+    networks:
+      - todo-network
+
+  db:
+    image: mysql
+    container_name: todo-db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "db", "-P", "3306", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
+
+
+volumes:
+  mysql-data:

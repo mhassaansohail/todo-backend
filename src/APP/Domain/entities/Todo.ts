@@ -19,21 +19,15 @@ interface IUpdateTodo {
 
 
 export class Todo extends BaseEntity implements TodoAttributes {
-    private _todoId: UUIDVo;
     private _title: string;
     private _description: string;
     private _completed: boolean;
 
     protected constructor(title: string, description: string, completed: boolean) {
         super();
-        this._todoId = UUIDVo.new();
         this._title = title;
         this._description = description;
         this._completed = completed;
-    }
-
-    get Id(): UUIDVo {
-        return this._todoId;
     }
 
     get title(): string {
@@ -47,6 +41,7 @@ export class Todo extends BaseEntity implements TodoAttributes {
     get completed(): boolean {
         return this._completed;
     }
+    
 
     static create(title: string, description: string, completed: boolean): Todo {
         return new Todo(title, description, completed);

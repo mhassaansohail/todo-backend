@@ -9,15 +9,18 @@ import { IFetchPaginatedTodo } from "./DTO/IFetchPaginatedTodo.dto";
 import { IFetchTodoById } from "./DTO/IFetchTodoById.dto";
 import { ICreateTodo } from "./DTO/ICreateTodo.dto";
 import { IUpdateTodo } from "./DTO/IUpdateTodo.dto";
-import { UpdateTodoDTO } from "./DTO/UpdateTodo.dto";
 import { IDeleteTodoById } from "./DTO/IDeleteTodoById.dto";
+import { IEventEmitter } from "../events/IEventEmitter";
+import { TodoDeletedEvent } from "../events/TodoDeletedEvent";
 
 
 @injectable()
 export class TodoService {
     private repository: TodoRepository;
-    constructor(@inject("TodoRepository") repository: TodoRepository) {
+    private eventEmitter: IEventEmitter;
+    constructor(@inject("TodoRepository") repository: TodoRepository, eventEmitter: IEventEmitter) {
         this.repository = repository;
+        this.eventEmitter = eventEmitter;
     }
 
     async getTodos({ pageNumber, pageSize, conditionParams }: IFetchPaginatedTodo): Promise<Result<PaginatedCollection<Todo>, Error>> {
@@ -62,7 +65,10 @@ export class TodoService {
     async deleteTodo({ todoId }: IDeleteTodoById): Promise<Result<Todo, Error>> {
         try {
             const todoIdVo = UUIDVo.fromStrNoValidation(todoId);
-            return Result.Ok((await this.repository.deleteById(todoIdVo)).unwrap());
+            const deletedTodo = ((await this.repository.deleteById(todoIdVo)).unwrap());
+            const todoDeletedEvent = new TodoDeletedEvent({ todoId });
+            this.eventEmitter.emit("todoDeleted", todoDeletedEvent);
+            return Result.Ok(deletedTodo);
         } catch (error: any) {
             return Result.Err(new Error(error.message));
         }
