@@ -2,7 +2,8 @@ import { inject, injectable } from 'tsyringe';
 import { Result } from "@carbonteq/fp";
 import { IMessageSender } from "../../../Application/ports/IMessageSender";
 import { IRequestService } from '../../../Application/ports/IRequestService';
-import { config } from 'APP/Infrastructure/config';
+import { config } from '../../config';
+import { MessageSenderServiceFailure } from './exceptions/MessageSenderService.exception';
 
 const webhookUrl: string = String(config.slackWebhookURL);
 
@@ -20,7 +21,7 @@ export class SlackMessageSender implements IMessageSender {
             const response = await this.requestService.makePostRequest(webhookUrl, payload);
             return Result.Ok(response.unwrap());
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return Result.Err(new MessageSenderServiceFailure("sendMessage"));
         }
     }
 }

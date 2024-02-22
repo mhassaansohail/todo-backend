@@ -5,84 +5,82 @@ import { UserRepository } from "../../Domain/repositories/UserRepository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
 import { IEncryptionService } from "../ports/IEncryptionService";
-import { UUIDVo } from "@carbonteq/hexapp";
-import { IFetchPaginatedUsers } from "./DTO/IFetchPaginatedUsers.dto";
-import { IFetchUserById } from "./DTO/IFetchUserById.dto";
-import { IFetchUserByUsername } from "./DTO/IFetchUserByUsername.dto";
-import { ICreateUser } from "./DTO/ICreateUser.dto";
-import { IUpdateUser } from "./DTO/IUpdateUser.dto";
-import { IDeleteUserById } from "./DTO/IDeleteUserById.dto";
+import { AppResult, UUIDVo } from "@carbonteq/hexapp";
+import { CreateUserDto, FetchUserPaginationOptionsDto, UpdateUserDto, UserIdDto } from "../DTO";
+import { UserAlreadyExists } from "../../Infrastructure/adapters/repositories/exceptions/user/UserAlreadyExists.exception";
+import { UserNotFoundWithParams } from "../../Infrastructure/adapters/repositories/exceptions/user/UserNotFoundWithParams.exception";
 
 @injectable()
 export class UserService {
     private repository: UserRepository;
     private encryptionService: IEncryptionService;
     constructor(
-        @inject("UserRepository") repository: UserRepository, @inject("EncryptionService") encryptionService: IEncryptionService
-    ) {
+        @inject("UserRepository") repository: UserRepository,
+        @inject("EncryptionService") encryptionService: IEncryptionService
+        ) {
         this.repository = repository;
         this.encryptionService = encryptionService;
     }
 
-    async getUsers({ pageSize, pageNumber, conditionParams }: IFetchPaginatedUsers): Promise<Result<PaginatedCollection<User>, Error>> {
+    async getUsers({ pageSize, pageNumber, name, userName, email }: FetchUserPaginationOptionsDto): Promise<AppResult<PaginatedCollection<User>>> {
         try {
+            const conditionParams = { name, userName, email }
             const totalUserRows = (await this.repository.countTotalRows(conditionParams)).unwrap();
             const paginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
-            const userRows = (await this.repository.fetchAllPaginated(paginationOptions.offset, paginationOptions.limit, conditionParams)).unwrap();
-            return Result.Ok(new PaginatedCollection(userRows, totalUserRows, pageNumber, pageSize));
+            const userRows = (await this.repository.fetchAllPaginated
+                (paginationOptions.offset, paginationOptions.limit, conditionParams)).unwrap();
+            return AppResult.fromResult(Result.Ok(new PaginatedCollection
+                (userRows, totalUserRows, pageNumber, pageSize)));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async getUserById({ userId }: IFetchUserById): Promise<Result<User, Error>> {
+    async getUserById({ userId }: UserIdDto): Promise<AppResult<User>> {
         try {
             const userIdVo = UUIDVo.fromStrNoValidation(userId);
-            return Result.Ok((await this.repository.fetchById(userIdVo)).unwrap());
+            return AppResult.fromResult(Result.Ok((await this.repository.fetchById(userIdVo)).unwrap()));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async getUserByUsername({ userName }: IFetchUserByUsername): Promise<Result<User, Error>> {
+    async createUser({ name, userName, email, password, age }: CreateUserDto): Promise<AppResult<User>> {
         try {
-            return Result.Ok((await this.repository.fetchByUserNameOrEmail(userName)).unwrap());
+            password = this.encryptionService.encryptPassword(password).unwrap();
+            const userEntity = User.create(name, userName, email, password, age);
+            if (await this.repository.existsBy("email", email)) {
+                return AppResult.fromResult(Result.Err(new UserAlreadyExists("email", email)));
+            }
+            if (await this.repository.existsBy("userName", userName)) {
+                return AppResult.fromResult(Result.Err(new UserAlreadyExists("userName", userName)));
+            }
+            return AppResult.fromResult(Result.Ok((await this.repository.insert(userEntity)).unwrap()));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async createUser(user: ICreateUser): Promise<Result<User, Error>> {
+    async updateUser({ userId, name, userName, email, password, age }: UpdateUserDto): Promise<AppResult<User>> {
         try {
-            const password = user.password;
-            const hashedPassword = this.encryptionService.encryptPassword(password).unwrap();
-            user.password = hashedPassword;
-            const userEntity = User.create(user.name, user.userName, user.email, user.password, user.age);
-            return Result.Ok((await this.repository.insert(userEntity)).unwrap());
+            password = this.encryptionService.encryptPassword(password).unwrap();
+            const toUpdateUser = (await this.repository.fetchById(UUIDVo.fromStrNoValidation(userId))).unwrap();
+            toUpdateUser.update({ name, email, userName, password, age });
+            return AppResult.fromResult(Result.Ok((await this.repository.update(toUpdateUser)).unwrap()));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async updateUser(user: IUpdateUser): Promise<Result<User, Error>> {
-        try {
-            const password = user.password;
-            const hashedPassword = this.encryptionService.encryptPassword(password).unwrap();
-            user.password = hashedPassword;
-            const toUpdateUser = (await this.repository.fetchById(UUIDVo.fromStrNoValidation(user.userId))).unwrap();
-            toUpdateUser.update(user);
-            return Result.Ok((await this.repository.update(toUpdateUser)).unwrap());
-        } catch (error: any) {
-            return Result.Err(new Error(error.message));
-        }
-    }
-
-    async deleteUser({ userId }: IDeleteUserById): Promise<Result<User, Error>> {
+    async deleteUser({ userId }: UserIdDto): Promise<AppResult<User>> {
         try {
             const userIdVo = UUIDVo.fromStrNoValidation(userId);
-            return Result.Ok((await this.repository.deleteById(userIdVo)).unwrap());
+            if (await this.repository.existsBy("Id", userId)) {
+                return AppResult.fromResult(Result.Err(new UserNotFoundWithParams("userId", userId)));
+            }
+            return AppResult.fromResult(Result.Ok((await this.repository.deleteById(userIdVo)).unwrap()));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 }

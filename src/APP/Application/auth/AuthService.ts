@@ -4,8 +4,10 @@ import { inject, injectable } from "tsyringe";
 import { IJWTAuthService } from "../ports/IJWTAuthService";
 import { IOAuthService } from "../ports/IOAuthService";
 import { IEncryptionService } from "../ports/IEncryptionService";
-import { ILoginByCredentials } from "./DTO/ILoginByCreds.dto";
-import { IVerifyToken } from "./DTO/IVerifyToken.dto";
+import { AuthCodeDto, LoginDto, VerifyTokenDto } from "../DTO";
+import { AppResult } from "@carbonteq/hexapp";
+import { InvalidCredentials } from "../exceptions/auth/InvalidCredentials.exception";
+import { InvalidToken } from "../exceptions/auth/InvalidToken.exception";
 
 @injectable()
 export class AuthService {
@@ -27,38 +29,41 @@ export class AuthService {
 
     }
 
-    async loginWithOAuth(): Promise<Result<string, Error>> {
+    async loginWithOAuth(): Promise<AppResult<string>> {
         try {
             const consentScreenUrlResult = await this.oAuthService.generateAuthURL(['profile']);
-            return Result.Ok(consentScreenUrlResult.unwrap())
-        } catch (error) {
-            return Result.Err(new Error("Invalid credentials."));
+            return AppResult.fromResult(Result.Ok(consentScreenUrlResult.unwrap()));
+        } catch (error: any) {
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async loginByCredentials({ userName, password }: ILoginByCredentials): Promise<Result<string, Error>> {
+    async loginByCredentials({ userName, password }: LoginDto): Promise<AppResult<string>> {
         try {
             const isValidUserResult = await this.verifyUser(userName, password);
             if (!isValidUserResult.unwrap()) {
-                return Result.Err(new Error("Invalid username or password."));
+                return AppResult.fromResult(Result.Err(new InvalidCredentials()));
             }
             const tokenResult = await this.jwtService.genrateTokenFromParam(userName);
-            return Result.Ok(tokenResult.unwrap());
+            return AppResult.fromResult(Result.Ok(tokenResult.unwrap()));
 
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async verifyToken({ token }: IVerifyToken): Promise<Result<string, Error>> {
+    async verifyToken({ token }: VerifyTokenDto): Promise<AppResult<string>> {
         try {
             let isvalidTokenResult = await this.jwtService.verifyToken(token);
             if (isvalidTokenResult.isErr()) {
                 isvalidTokenResult = await this.oAuthService.verifyToken(token);
             }
-            return Result.Ok(isvalidTokenResult.unwrap());
-        } catch (error) {
-            return Result.Err(new Error("Invalid token."));
+            if (!isvalidTokenResult.unwrap()) {
+                return AppResult.fromResult(Result.Err(new InvalidToken()));
+            }
+            return AppResult.fromResult(Result.Ok(isvalidTokenResult.unwrap()));
+        } catch (error: any) {
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
@@ -67,16 +72,16 @@ export class AuthService {
             const user = (await this.repository.fetchByUserNameOrEmail(userName)).unwrap();
             return Result.Ok(this.encryptionService.comparePassword(password, String(user.password)).unwrap());
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return Result.Err((error));
         }
     }
 
-    async callback(code: string): Promise<Result<any, Error>> {
+    async callback({ code }: AuthCodeDto): Promise<AppResult<any>> {
         try {
             const convertedTokenResult = await this.oAuthService.genrateTokenFromParam(code);
-            return Result.Ok(convertedTokenResult.unwrap());
+            return AppResult.fromResult(Result.Ok(convertedTokenResult.unwrap()));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 }

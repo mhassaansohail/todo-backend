@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
-import { authInputValidator, validateAuthInput } from './inputValidators';
+import { NextFunction, Request, Response } from 'express';
 import { AuthService } from '../../APP/Application/auth/AuthService';
 import { Logger } from '../../APP/Infrastructure/logger/Logger';
 import { inject, injectable } from 'tsyringe';
+import { AuthCodeDto, LoginDto } from '../../APP/Application/DTO';
+
 
 @injectable()
 export class AuthController {
@@ -11,53 +12,56 @@ export class AuthController {
     constructor(@inject("Logger") logger: Logger, @inject("AuthService") service: AuthService) {
         this.logger = logger;
         this.service = service;
-     }
+    }
 
-    login = async (req: Request, res: Response): Promise<Response> => {
-        const authInputValidationResult = validateAuthInput(req.body);
-        if (authInputValidationResult.isErr()) {
-            const { message } = authInputValidationResult.unwrapErr();
-            this.logger.error(message);
-            return res.status(401).json({ status: "Unsuccesful", message });
-        }
-        const bodyKeysCount = Object.keys(authInputValidationResult.unwrap()).length;
-        if (bodyKeysCount === 2) {
-            const userCredentials = authInputValidationResult.unwrap();
-            const authenticationTokenResult = await this.service?.loginByCredentials(userCredentials);
-            if (authenticationTokenResult.isErr()) {
-                const { message } = authenticationTokenResult.unwrapErr();
-                this.logger.error(message);
-                return res.status(401).json({ status: "Unsuccesful", message: "Invalid username or password." });
+    login = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+        try {
+            const bodyKeysCount = Object.keys(req.body).length;
+            if (bodyKeysCount === 2) {
+                const authInputValidationResult = LoginDto.create(req.body);
+                if (authInputValidationResult.isErr()) {
+                    const { message } = authInputValidationResult.unwrapErr();
+                    this.logger.error(message);
+                    return res.status(401).json({ status: "Unsuccesful", message });
+                }
+                const authenticationTokenResult = await this.service?.loginByCredentials(authInputValidationResult.unwrap());
+                if (authenticationTokenResult.isErr()) {
+                    const { message } = authenticationTokenResult.unwrapErr();
+                    this.logger.error(message);
+                    return res.status(401).json({ status: "Unsuccesful", message: "Invalid username or password." });
+                }
+                return res.status(200).json({ status: "Succesful", token: authenticationTokenResult.unwrap() });
+            } else {
+                const consentScreenUrlResult = await this.service.loginWithOAuth();
+                if (consentScreenUrlResult.isErr()) {
+                    const { message } = consentScreenUrlResult.unwrapErr();
+                    this.logger.error(message);
+                    return res.status(401).json({ status: "Unsuccesful", message });
+                }
+                return res.status(200).json({ status: "Succesful", url: consentScreenUrlResult.unwrap() });
             }
-            const token = authenticationTokenResult.unwrap();
-            return res.status(200).json({ status: "Succesful", token });
-        } else {
-            const consentScreenUrlResult = await this.service.loginWithOAuth();
-            if (consentScreenUrlResult.isErr()) {
-                const { message } = consentScreenUrlResult.unwrapErr();
-                this.logger.error(message);
-                return res.status(401).json({ status: "Unsuccesful", message });
-            }
-            const consentScreenUrl = consentScreenUrlResult.unwrap();
-            return res.status(200).json({ status: "Succesful", url: consentScreenUrl });
+        } catch (error) {
+            next(error);
         }
     }
 
-    callback = async (req: Request, res: Response): Promise<Response> => {
-        const codeInputValidationResult = authInputValidator(req.query);
-        if (codeInputValidationResult.isErr()) {
-            const { message } = codeInputValidationResult.unwrapErr();
-            this.logger.error(message);
-            return res.status(401).json({ status: "Unsuccesful", message });
+    callback = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+        try {
+            const codeInputValidationResult = AuthCodeDto.create(req.query);
+            if (codeInputValidationResult.isErr()) {
+                const { message } = codeInputValidationResult.unwrapErr();
+                this.logger.error(message);
+                return res.status(401).json({ status: "Unsuccesful", message });
+            }
+            const tokenGeneratedResult = await this.service.callback(codeInputValidationResult.unwrap());
+            if (tokenGeneratedResult.isErr()) {
+                const { message } = tokenGeneratedResult.unwrapErr();
+                this.logger.error(message);
+                return res.status(401).json({ status: "Unsuccesful", message: "Invalid username or password." });
+            }
+            return res.json({ status: "Succesful", token: tokenGeneratedResult.unwrap() });
+        } catch (error) {
+            next(error);
         }
-        const { code } = codeInputValidationResult.unwrap();
-        const tokenGeneratedResult = await this.service.callback(code);
-        if (tokenGeneratedResult.isErr()) {
-            const { message } = tokenGeneratedResult.unwrapErr();
-            this.logger.error(message);
-            return res.status(401).json({ status: "Unsuccesful", message: "Invalid username or password." });
-        }
-        const token = tokenGeneratedResult.unwrap();
-        return res.json({ status: "Succesful", token });
     }
 }

@@ -1,4 +1,4 @@
-import { BaseRepository, NotFoundError, RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
+import { BaseRepository, BaseRepositoryExtended, RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
 import Todo from "../entities/Todo";
 import { Result } from "@carbonteq/fp";
 import { TodoAttributes } from "../attributes/todo";
@@ -9,6 +9,8 @@ export abstract class TodoRepository extends BaseRepository<Todo> {
         return Result.Err(new InvalidOperationOnTodo());
     }
     abstract fetchById(id: UUIDVo): Promise<RepositoryResult<Todo>>;
+
+    abstract existsById(todoId: UUIDVo): Promise<RepositoryResult<boolean>>;
 
     abstract fetchAllPaginated(
         offset: number, limit: number, conditionParams: Partial<TodoAttributes>

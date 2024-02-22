@@ -2,6 +2,7 @@ import { IJWTAuthService } from "../../../Application/ports/IJWTAuthService";
 import jwt from "jsonwebtoken"
 import { Result } from "@carbonteq/fp";
 import { config } from '../../config';
+import { JWTServiceFailure } from "./exceptions/JWTService.exception";
 const secretKey = String(config.jwtSecretKey);
 
 export class JWTService implements IJWTAuthService {
@@ -13,7 +14,7 @@ export class JWTService implements IJWTAuthService {
         try {
             return Result.Ok(this.client.sign({ userName }, secretKey, { expiresIn: '6h' }));
         } catch (error: any) {
-            return Result.Err(new Error(error.message))
+            return Result.Err(new JWTServiceFailure("genrateTokenFromParam"));
         }
     }
 
@@ -21,7 +22,7 @@ export class JWTService implements IJWTAuthService {
         try {
             return Result.Ok(this.client.verify(token, secretKey));
         } catch (error: any) {
-            return Result.Err(new Error(error.message))
+            return Result.Err(new JWTServiceFailure("verifyToken"));
         }
 
     }

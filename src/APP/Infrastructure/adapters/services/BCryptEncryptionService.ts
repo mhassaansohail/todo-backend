@@ -2,6 +2,7 @@ import { Result } from "@carbonteq/fp";
 import { IEncryptionService } from '../../../Application/ports/IEncryptionService';
 import bcrypt from 'bcrypt'
 import { config } from '../../config';
+import { EncryptionServiceFailure } from "./exceptions/EncryptionService.exception";
 
 
 export class BCryptEncryptionService implements IEncryptionService {
@@ -11,10 +12,18 @@ export class BCryptEncryptionService implements IEncryptionService {
     }
 
     encryptPassword(str: string): Result<string, Error> {
-        return Result.Ok(this.client.hashSync(str, config.saltRounds))
+        try {
+            return Result.Ok(this.client.hashSync(str, config.saltRounds))
+        } catch (error) {
+            return Result.Err(new EncryptionServiceFailure("encryptPassword"));
+        }
     }
 
     comparePassword(password: string, encodedPassword: string): Result<boolean, Error> {
-        return Result.Ok(this.client.compareSync(password, encodedPassword));
+        try {
+            return Result.Ok(this.client.compareSync(password, encodedPassword));
+        } catch (error) {
+            return Result.Err(new EncryptionServiceFailure("comparePassword"));
+        }
     }
 }

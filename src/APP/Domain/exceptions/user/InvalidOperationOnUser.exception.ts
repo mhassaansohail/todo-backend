@@ -1,4 +1,4 @@
-import { AlreadyExistsError, InvalidOperation, NotFoundError } from '@carbonteq/hexapp';
+import { InvalidOperation } from '@carbonteq/hexapp';
 
 export class InvalidOperationOnUser extends InvalidOperation {
     constructor() {

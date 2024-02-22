@@ -1,7 +1,7 @@
 import { AlreadyExistsError } from "@carbonteq/hexapp";
 
 export class UserAlreadyExists extends AlreadyExistsError {
-    constructor(userId: string) {
-      super(`User with userId<${userId}> already exists in DB`);
+    constructor(property: string, value: string) {
+      super(`User with ${property}:${value}> already exists in DB`);
     }
   }

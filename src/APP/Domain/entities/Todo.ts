@@ -1,4 +1,4 @@
-import { BaseEntity, DateTime, UUIDVo } from "@carbonteq/hexapp";
+import { BaseEntity, DateTime } from "@carbonteq/hexapp";
 import { TodoAttributes } from "../attributes/todo";
 
 interface ITodo {

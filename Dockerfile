@@ -2,11 +2,12 @@ FROM node:latest
 
 WORKDIR /app
 
+COPY src ./src
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY build ./build
+COPY oAuth2.keys.json ./
 COPY .env ./
-COPY . .
 
 RUN npm install
 RUN npm install prisma @prisma/client

@@ -13,11 +13,11 @@ import { UserNotFoundWithParams } from "../exceptions/user/UserNotFoundWithParam
 @injectable()
 export class PrismaUserRepository extends UserRepository {
     private logger: Logger;
-    private prisma: any;
-    constructor(prisma: any, @inject("Logger") logger: Logger) {
+    private client: PrismaClient;
+    constructor(@inject("PrismaClient") client: PrismaClient, @inject("Logger") logger: Logger) {
         super()
         this.logger = logger;
-        this.prisma = prisma || new PrismaClient();
+        this.client = client;
     }
 
     async countTotalRows(queryParams: Partial<User>): Promise<RepositoryResult<number>> {
@@ -28,7 +28,7 @@ export class PrismaUserRepository extends UserRepository {
                     { email: { contains: queryParams.email } }
                 ],
             }
-            const totalRows = await this.prisma.user.count({
+            const totalRows = await this.client.user.count({
                 where: conditions
             });
             return Result.Ok(totalRows);
@@ -46,7 +46,7 @@ export class PrismaUserRepository extends UserRepository {
                     { email: { contains: queryParams.email } }
                 ],
             }
-            const fetchedUsers = await this.prisma.user.findMany({
+            const fetchedUsers = await this.client.user.findMany({
                 skip: offset,
                 take: limit,
                 where: conditions
@@ -62,7 +62,7 @@ export class PrismaUserRepository extends UserRepository {
     async fetchById(userId: UUIDVo): Promise<RepositoryResult<User>> {
         try {
             const serializedUserId = userId.serialize();
-            const fetchedUser = await this.prisma.user.findUnique({
+            const fetchedUser = await this.client.user.findUnique({
                 where: { userId: serializedUserId }
             });
             if (fetchedUser !== null) {
@@ -75,9 +75,26 @@ export class PrismaUserRepository extends UserRepository {
         }
     }
 
+    async existsBy(prop: keyof User, value: User[keyof User]): Promise<RepositoryResult<boolean>> {
+        try {
+            const userExists = (await this.client.user.findFirst({
+                where: {
+                    [prop]: value
+                },
+                select: {
+                    userId: true
+                }
+            }));
+            return Result.Ok(!!userExists);
+        } catch (error: any) {
+            this.logger.error(error.message);
+            return Result.Err(new DbMalfunction(`existsBy${prop}`));
+        }
+    }
+
     async fetchByUserNameOrEmail(userName?: string, email?: string): Promise<RepositoryResult<User>> {
         try {
-            const fetchedUser = await this.prisma.user.findUnique({
+            const fetchedUser = await this.client.user.findUnique({
                 where: {
                     email,
                     userName
@@ -93,7 +110,7 @@ export class PrismaUserRepository extends UserRepository {
     async insert(user: User): Promise<RepositoryResult<User>> {
         try {
             const { Id: userId, ...userAttributes } = user.serialize();
-            const createdUser = await this.prisma.user.create({
+            const createdUser = await this.client.user.create({
                 data: {
                     userId,
                     ...userAttributes
@@ -109,7 +126,7 @@ export class PrismaUserRepository extends UserRepository {
     async update(user: User): Promise<RepositoryResult<User>> {
         try {
             const { Id: userId, ...userAttributes } = user.serialize();
-            const updatedUser = await this.prisma.user.update({
+            const updatedUser = await this.client.user.update({
                 where: { userId: userId },
                 data: userAttributes
             });
@@ -122,7 +139,7 @@ export class PrismaUserRepository extends UserRepository {
 
     async deleteById(userId: UUIDVo): Promise<RepositoryResult<User>> {
         try {
-            const removedUser = await this.prisma.user.delete({
+            const removedUser = await this.client.user.delete({
                 where: { userId: userId.serialize() }
             });
             return removedUser ? Result.Ok(User.fromObj(UserDTO.toDomain(removedUser))) : Result.Err(new UserNotFound(userId.serialize()));;

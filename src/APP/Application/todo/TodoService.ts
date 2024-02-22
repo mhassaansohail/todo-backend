@@ -1,17 +1,14 @@
 import { inject, injectable } from "tsyringe";
-import { UUIDVo } from "@carbonteq/hexapp";
+import { AppError, AppResult, UUIDVo } from "@carbonteq/hexapp";
 import { Result } from "@carbonteq/fp";
 import Todo from "../../Domain/entities/Todo";
 import { TodoRepository } from "../../Domain/repositories/TodoRepository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
-import { IFetchPaginatedTodo } from "./DTO/IFetchPaginatedTodo.dto";
-import { IFetchTodoById } from "./DTO/IFetchTodoById.dto";
-import { ICreateTodo } from "./DTO/ICreateTodo.dto";
-import { IUpdateTodo } from "./DTO/IUpdateTodo.dto";
-import { IDeleteTodoById } from "./DTO/IDeleteTodoById.dto";
 import { IEventEmitter } from "../events/IEventEmitter";
 import { TodoDeletedEvent } from "../events/TodoDeletedEvent";
+import { AddTodoDto, FetchTodoPaginationOptionsDto, TodoIdDto, UpdateTodoDto } from "../DTO";
+import { TodoNotFound } from "../../Domain/exceptions/todo/TodoNotFound.exception";
 
 
 @injectable()
@@ -23,54 +20,59 @@ export class TodoService {
         this.eventEmitter = eventEmitter;
     }
 
-    async getTodos({ pageNumber, pageSize, conditionParams }: IFetchPaginatedTodo): Promise<Result<PaginatedCollection<Todo>, Error>> {
+    async getTodos({ pageNumber, pageSize, title, description }: FetchTodoPaginationOptionsDto): Promise<AppResult<PaginatedCollection<Todo>>> {
         try {
+            const conditionParams = { title, description }
             const totalTodoRows = (await this.repository.countTotalRows(conditionParams)).unwrap();
             const todoPaginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
             const todoRows = (await this.repository.fetchAllPaginated(todoPaginationOptions.offset, todoPaginationOptions.limit, conditionParams)).unwrap();
-            return Result.Ok(new PaginatedCollection(todoRows, totalTodoRows, pageNumber, pageSize));
+            return AppResult.fromResult(Result.Ok(new PaginatedCollection(todoRows, totalTodoRows, pageNumber, pageSize)));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async getTodoById({ todoId }: IFetchTodoById): Promise<Result<Todo, Error>> {
+    async getTodoById({ todoId }: TodoIdDto): Promise<AppResult<Todo>> {
         try {
             const todoIdVo = UUIDVo.fromStrNoValidation(todoId);
-            return Result.Ok((await this.repository.fetchById(todoIdVo)).unwrap());
+            return AppResult.fromResult(Result.Ok((await this.repository.fetchById(todoIdVo)).unwrap()));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async addTodo(todo: ICreateTodo): Promise<Result<Todo, Error>> {
+    async addTodo(todo: AddTodoDto): Promise<AppResult<Todo>> {
         try {
             const todoEntity = Todo.create(todo.title, todo.description, todo.completed);
-            return Result.Ok((await this.repository.insert(todoEntity)).unwrap());
+            return AppResult.fromResult(Result.Ok((await this.repository.insert(todoEntity)).unwrap()));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async updateTodo(todo: IUpdateTodo): Promise<Result<Todo, Error>> {
+    async updateTodo(todo: UpdateTodoDto): Promise<AppResult<Todo>> {
         try {
             const toUpdateTodo = (await this.repository.fetchById(UUIDVo.fromStrNoValidation(todo.todoId))).unwrap();
             toUpdateTodo.update(todo);
-            return Result.Ok((await this.repository.update(toUpdateTodo)).unwrap());
+            return AppResult.fromResult(Result.Ok((await this.repository.update(toUpdateTodo)).unwrap()));
         } catch (error: any) {
-            return Result.Err(error);
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 
-    async deleteTodo({ todoId }: IDeleteTodoById): Promise<Result<Todo, Error>> {
+    async deleteTodo({ todoId }: TodoIdDto): Promise<AppResult<Todo>> {
         try {
             const todoIdVo = UUIDVo.fromStrNoValidation(todoId);
+            const todoExists = ((await this.repository.existsById(todoIdVo)).unwrap());
+            if (!todoExists) {
+                return AppResult.fromResult(Result.Err(new TodoNotFound(todoId)));
+            }
             const deletedTodo = ((await this.repository.deleteById(todoIdVo)).unwrap());
             const todoDeletedEvent = new TodoDeletedEvent({ todoId });
             this.eventEmitter.emit("todoDeleted", todoDeletedEvent);
-            return Result.Ok(deletedTodo);
+            return AppResult.fromResult(Result.Ok(deletedTodo));
         } catch (error: any) {
-            return Result.Err(new Error(error.message));
+            return AppResult.fromResult(Result.Err(error));
         }
     }
 }

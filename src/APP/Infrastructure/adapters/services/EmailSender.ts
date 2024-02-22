@@ -1,6 +1,7 @@
 import nodeMailer, { Transporter } from "nodemailer"
 import { IEmailSender } from "../../../Application/ports/IEmailSender";
 import { Result } from "@carbonteq/fp";
+import { EmailServiceFailure } from "./exceptions/EmailService.exception";
 
 interface EmailConfig {
     user: string;
@@ -32,7 +33,7 @@ export class EmailSender implements IEmailSender {
         try {
             return Result.Ok(await this.transporter.sendMail(mailOptions));
         } catch (error: any) {
-            return Result.Err(new Error(error.message))
+            return Result.Err(new EmailServiceFailure("sendingMail"));
         }
     }
 }

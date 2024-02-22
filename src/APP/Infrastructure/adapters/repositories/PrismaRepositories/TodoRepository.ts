@@ -3,7 +3,7 @@ import Todo from "../../../../Domain/entities/Todo";
 import { TodoRepository } from "../../../../Domain/repositories/TodoRepository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../../logger/Logger";
-import { TodoAttributes } from "APP/Domain/attributes/todo";
+import { TodoAttributes } from "../../../../Domain/attributes/todo";
 import { RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
 import { Result } from '@carbonteq/fp'
 import { TodoNotFound } from "../../../../Domain/exceptions/todo/TodoNotFound.exception";
@@ -12,13 +12,13 @@ import { DbMalfunction } from "../exceptions/shared/DbMalfunction.exception";
 
 @injectable()
 export class PrismaTodoRepository extends TodoRepository {
-    private prisma;
+    private client: PrismaClient;
     private logger: Logger
 
-    constructor(prisma: any, @inject("Logger") logger: Logger) {
+    constructor(@inject("PrismaClient") client: PrismaClient, @inject("Logger") logger: Logger) {
         super();
         this.logger = logger;
-        this.prisma = prisma || new PrismaClient();
+        this.client = client;
     }
 
     async countTotalRows(conditionParams: Partial<TodoAttributes>): Promise<RepositoryResult<number>> {
@@ -29,7 +29,7 @@ export class PrismaTodoRepository extends TodoRepository {
                     { description: { contains: conditionParams.description } },
                 ],
             }
-            return Result.Ok(await this.prisma.todo.count({
+            return Result.Ok(await this.client.todo.count({
                 where: conditions
             }));
         } catch (error: any) {
@@ -46,7 +46,7 @@ export class PrismaTodoRepository extends TodoRepository {
                     { description: { contains: queryParams.description } },
                 ],
             }
-            const fetchedTodos = await this.prisma.todo.findMany({
+            const fetchedTodos = await this.client.todo.findMany({
                 skip: offset,
                 take: limit,
                 where: conditions
@@ -59,10 +59,27 @@ export class PrismaTodoRepository extends TodoRepository {
 
     }
 
+    async existsById(todoId: UUIDVo): Promise<RepositoryResult<boolean>> {
+        try {
+            const todoExists = (await this.client.todo.findUnique({
+                where: {
+                    todoId: todoId.serialize()
+                },
+                select: {
+                    todoId: true
+                }
+            }));
+            return Result.Ok(!!todoExists);
+        } catch (error: any) {
+            this.logger.error(error.message);
+            return Result.Err(new DbMalfunction("existsById"));
+        }
+    }
+
     async fetchById(todoId: UUIDVo): Promise<RepositoryResult<Todo>> {
         try {
             const serializedTodoId: string = todoId.serialize();
-            const fetchedTodo = await this.prisma.todo.findUnique({
+            const fetchedTodo = await this.client.todo.findUnique({
                 where: { todoId: serializedTodoId }
             });
             return fetchedTodo ? Result.Ok(Todo.fromObj(TodoDTO.toDomain(fetchedTodo))) : Result.Err(new TodoNotFound(todoId.serialize()));
@@ -75,7 +92,7 @@ export class PrismaTodoRepository extends TodoRepository {
     async insert(todo: Todo): Promise<RepositoryResult<Todo>> {
         try {
             const { Id: todoId, ...todoAttributes } = todo.serialize();
-            const addedTodo = await this.prisma.todo.create({
+            const addedTodo = await this.client.todo.create({
                 data: {
                     todoId,
                     ...todoAttributes
@@ -91,7 +108,7 @@ export class PrismaTodoRepository extends TodoRepository {
     async update(todo: Todo): Promise<RepositoryResult<Todo>> {
         try {
             const { Id: todoId, ...todoAttributes } = todo.serialize();
-            const updateTodo = await this.prisma.todo.update({
+            const updateTodo = await this.client.todo.update({
                 where: { todoId },
                 data: todoAttributes
             });
@@ -105,7 +122,7 @@ export class PrismaTodoRepository extends TodoRepository {
     async deleteById(todoId: UUIDVo): Promise<RepositoryResult<Todo>> {
         try {
             const serializedTodoId = todoId.serialize()
-            const removedTodo = await this.prisma.todo.delete({
+            const removedTodo = await this.client.todo.delete({
                 where: { todoId: serializedTodoId }
             });
             return Result.Ok(Todo.fromObj(TodoDTO.toDomain(removedTodo)));

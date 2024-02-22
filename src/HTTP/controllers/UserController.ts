@@ -1,12 +1,8 @@
-import { Request, Response } from "express";
-import { validateUserIdParam, validateUserInput, validateUserPaginationOptions } from "./inputValidators";
-import bcrypt from 'bcrypt';
+import { NextFunction, Request, Response } from "express";
 import { UserService } from "../../APP/Application/user/UserService";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
-import { UserAttributes } from "../../APP/Domain/attributes/user";
-import { UserDTO } from "./DTO/user/user.dto";
-import { GetPaginatedUsersDTO } from "./DTO/user/GetPaginatedUsers.dto";
+import { CreateUserDto, FetchUserPaginationOptionsDto, UpdateUserDto, UserDto, UserIdDto } from "../../APP/Application/DTO";
 
 @injectable()
 export class UserController {
@@ -17,97 +13,113 @@ export class UserController {
         this.service = service;
     }
 
-    getUsers = async (req: Request, res: Response): Promise<Response> => {
-        const queryParamsValidation = validateUserPaginationOptions(req.query);
-        if (queryParamsValidation.isErr()) {
-            const { message } = queryParamsValidation.unwrapErr();
-            this.logger.error(message);
-            return res.status(403).json({ status: "Unsuccesful", message });
+    getUsers = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+        try {
+            const queryParamsValidation = FetchUserPaginationOptionsDto.create(req.query);
+            // if (queryParamsValidation.isErr()) {
+            //     const { message } = queryParamsValidation.unwrapErr();
+            //     this.logger.error(message);
+            //     return res.status(403).json({ status: "Unsuccesful", message });
+            // }
+            const fetchedUsersResult = await this.service.getUsers(queryParamsValidation.unwrap());
+            // if (fetchedUsersResult.isErr()) {
+            //     const { message } = fetchedUsersResult.unwrapErr();
+            //     this.logger.error(message);
+            //     return res.status(400).json({ status: "Unsuccesful", message });
+            // }
+            return res.status(200).json({ status: "Succesful", data: fetchedUsersResult.unwrap() });
+        } catch (error) {
+            next(error);
         }
-        const { pageSize, pageNumber, name, email, userName } = queryParamsValidation.unwrap();
-        const fetchedUsersResult = await this.service.getUsers(GetPaginatedUsersDTO.toApp({ pageNumber, pageSize, name, email, userName }));
-        if (fetchedUsersResult.isErr()) {
-            const { message } = fetchedUsersResult.unwrapErr();
-            this.logger.error(message);
-            return res.status(400).json({ status: "Unsuccesful", message });
-        }
-        const fetchedUsers = fetchedUsersResult.unwrap();
-        return res.status(200).json({ status: "Succesful", data: fetchedUsers });
     }
 
-    getUserById = async (req: Request, res: Response): Promise<Response> => {
-        const userIdValidation = validateUserIdParam(req.params);
-        if (userIdValidation.isErr()) {
-            const { message } = userIdValidation.unwrapErr()
-            this.logger.error(message);
-            return res.status(403).json({ status: "Unsuccesful", message });
+    getUserById = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+        try {
+            const userIdValidation = UserIdDto.create(req.params);
+            // if (userIdValidation.isErr()) {
+            //     const { message } = userIdValidation.unwrapErr()
+            //     this.logger.error(message);
+            //     return res.status(403).json({ status: "Unsuccesful", message });
+            // }
+            const fetchedUserResult = await this.service.getUserById(userIdValidation.unwrap());
+            // if (fetchedUserResult.isErr()) {
+            //     const { message } = fetchedUserResult.unwrapErr()
+            //     this.logger.error(message);
+            //     return res.status(400).json({ status: "Unsuccesful", message });
+            // }
+            // return res.status(200).json({ status: "Succesful", data: UserDto.toPresentation(fetchedUserResult.unwrap()) });
+            return res.status(200).json({ status: "Succesful", data: fetchedUserResult.unwrap() });
+        } catch (error) {
+            next(error);
         }
-        const { userId } = userIdValidation.unwrap();
-        const fetchedUserResult = await this.service.getUserById(userId);
-        if (fetchedUserResult.isErr()) {
-            const { message } = fetchedUserResult.unwrapErr()
-            this.logger.error(message);
-            return res.status(400).json({ status: "Unsuccesful", message });
-        }
-        return res.status(200).json({ status: "Succesful", data: UserDTO.toPresentation(fetchedUserResult.unwrap()) });
     }
 
-    createUser = async (req: Request, res: Response): Promise<Response> => {
-        const userInputValidationResult = validateUserInput(req.body);
-        if (userInputValidationResult.isErr()) {
-            const { message } = userInputValidationResult.unwrapErr()
-            this.logger.error(message);
-            return res.status(403).json({ status: "Unsuccesful", message });
+    createUser = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+        try {
+            const userInputValidationResult = CreateUserDto.create(req.body);
+            // if (userInputValidationResult.isErr()) {
+            //     const { message } = userInputValidationResult.unwrapErr()
+            //     this.logger.error(message);
+            //     return res.status(403).json({ status: "Unsuccesful", message });
+            // }
+            const createdUserResult = await this.service.createUser(userInputValidationResult.unwrap());
+            // if (createdUserResult.isErr()) {
+            //     const { message } = createdUserResult.unwrapErr();
+            //     this.logger.error(message);
+            //     return res.status(400).json({ status: "Unsuccesful", message });
+            // }
+            // return res.status(201).json({ status: "Succesful", data: UserDto.toPresentation(createdUserResult.unwrap()) });
+            return res.status(201).json({ status: "Succesful", data: createdUserResult.unwrap() });
+        } catch (error) {
+            next(error);
         }
-        const userInput = userInputValidationResult.unwrap();
-        const createdUserResult = await this.service.createUser(userInput as UserAttributes);
-        if (createdUserResult.isErr()) {
-            const { message } = createdUserResult.unwrapErr();
-            this.logger.error(message);
-            return res.status(400).json({ status: "Unsuccesful", message });
-        }
-        return res.status(201).json({ status: "Succesful", data: UserDTO.toPresentation(createdUserResult.unwrap()) });
     }
 
-    updateUser = async (req: Request, res: Response): Promise<Response> => {
-        const userIdValidation = validateUserIdParam(req.params);
-        if (userIdValidation.isErr()) {
-            const { message } = userIdValidation.unwrapErr();
-            this.logger.error(message);
-            return res.status(403).json({ status: "Unsuccesful", message });
+    updateUser = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+        try {
+            const userIdValidation = UserIdDto.create(req.params);
+            // if (userIdValidation.isErr()) {
+            //     const { message } = userIdValidation.unwrapErr();
+            //     this.logger.error(message);
+            //     return res.status(403).json({ status: "Unsuccesful", message });
+            // }
+            const userInputValidationResult = UpdateUserDto.create({ userId: userIdValidation.unwrap(), ...req.body });
+            // if (userInputValidationResult.isErr()) {
+            //     const { message } = userInputValidationResult.unwrapErr()
+            //     this.logger.error(message);
+            //     return res.status(403).json({ status: "Unsuccesful", message });
+            // }
+            const updatedUserResult = await this.service.updateUser(userInputValidationResult.unwrap());
+            // if (updatedUserResult.isErr()) {
+            //     const { message } = updatedUserResult.unwrapErr();
+            //     this.logger.error(message);
+            //     return res.status(400).json({ status: "Unsuccesful", message });
+            // }
+            // return res.status(200).json({ status: "Succesful", data: UserDto.toPresentation(updatedUserResult.unwrap()) });
+            return res.status(200).json({ status: "Succesful", data: updatedUserResult.unwrap() });
+        } catch (error) {
+            next(error);
         }
-        const { userId } = userIdValidation.unwrap();
-        const userInputValidationResult = validateUserInput(req.body);
-        if (userInputValidationResult.isErr()) {
-            const { message } = userInputValidationResult.unwrapErr()
-            this.logger.error(message);
-            return res.status(403).json({ status: "Unsuccesful", message });
-        }
-        const userInput = userInputValidationResult.unwrap();
-        const updatedUserResult = await this.service.updateUser({ userId, ...userInput });
-        if (updatedUserResult.isErr()) {
-            const { message } = updatedUserResult.unwrapErr();
-            this.logger.error(message);
-            return res.status(400).json({ status: "Unsuccesful", message });
-        }
-        return res.status(200).json({ status: "Succesful", data: UserDTO.toPresentation(updatedUserResult.unwrap()) });
     }
 
-    deleteUser = async (req: Request, res: Response): Promise<Response> => {
-        const userIdValidation = validateUserIdParam(req.params);
-        if (userIdValidation.isErr()) {
-            const { message } = userIdValidation.unwrapErr()
-            this.logger.error(message);
-            return res.status(403).json({ status: "Unsuccesful", message });
+    deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
+        try {
+            const userIdValidation = UserIdDto.create(req.params);
+            // if (userIdValidation.isErr()) {
+            //     const { message } = userIdValidation.unwrapErr()
+            //     this.logger.error(message);
+            //     return res.status(403).json({ status: "Unsuccesful", message });
+            // }
+            const deletedUserResult = await this.service.deleteUser(userIdValidation.unwrap());
+            // if (deletedUserResult.isErr()) {
+            //     const { message } = deletedUserResult.unwrapErr();
+            //     this.logger.error(message);
+            //     return res.status(400).json({ status: "Unsuccesful", message });
+            // }
+            // return res.status(200).json({ status: "Succesful", data: UserDto.toPresentation(deletedUserResult.unwrap()) });
+            return res.status(200).json({ status: "Succesful", data: deletedUserResult.unwrap() });
+        } catch (error) {
+            next(error);
         }
-        const { userId } = userIdValidation.unwrap();
-        const deletedUserResult = await this.service.deleteUser(userId);
-        if (deletedUserResult.isErr()) {
-            const { message } = deletedUserResult.unwrapErr();
-            this.logger.error(message);
-            return res.status(400).json({ status: "Unsuccesful", message });
-        }
-        return res.status(200).json({ status: "Succesful", data: UserDTO.toPresentation(deletedUserResult.unwrap()) });
     }
-
 }

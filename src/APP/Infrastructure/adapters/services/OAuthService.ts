@@ -4,6 +4,7 @@ import fs from 'fs';
 import { injectable } from 'tsyringe';
 import { IOAuthService } from '../../../Application/ports/IOAuthService';
 import { config } from '../../config';
+import { OAuthServiceFailure } from './exceptions/OAuthService.exception';
 
 const oAuthKeysFilePath = String(config.oauthKeysFilePath);
 
@@ -57,7 +58,7 @@ export class OAuthService implements IOAuthService {
         try {
             return Result.Ok(this.oAuthClient.generateAuthUrl({ access_type: 'offline', scope: scopes }));
         } catch (error) {
-            return Result.Err(new Error('Error generating authenticaion URL for the given scopes.'));
+            return Result.Err(new OAuthServiceFailure("generateAuthURL"));
         }
     }
 
@@ -67,7 +68,7 @@ export class OAuthService implements IOAuthService {
             // this.oAuthClient.setCredentials(tokens);
             return Result.Ok(tokens);
         } catch (error) {
-            return Result.Err(new Error('Error exchanging code for token'));
+            return Result.Err(new OAuthServiceFailure("generateAuthURL"));
         }
     }
 
@@ -79,7 +80,7 @@ export class OAuthService implements IOAuthService {
             });
                 return Result.Ok(ticket.getPayload());
         } catch (error) {
-            return Result.Err(new Error('Invalid token'));
+            return Result.Err(new OAuthServiceFailure("verifyToken"));
           }
     }
 }

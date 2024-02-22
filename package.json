@@ -8,8 +8,8 @@
   },
   "scripts": {
     "build": "npx tsc",
-    "start": "nodemon build/HTTP/cli/index.js",
-    "test": "mocha './build/**/*.spec.js'"
+    "start": "nodemon dist/src/HTTP/cli/index.js",
+    "test": "mocha './dist/tests/**/*.spec.js'"
   },
   "keywords": [],
   "author": "",

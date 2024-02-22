@@ -1,5 +1,19 @@
 version: '3'
-
+secrets:
+  tokenSecretKey:
+    environment: "TOKEN_SECRET_KEY"
+  saltRounds:
+    environment: "SALT_ROUNDS"
+  emailUser:
+    environment: "EMAIL_USER"
+  emailPass:
+    environment: "EMAIL_PASS"
+  dbUser:
+    environment: "DB_USER"
+  dbPass:
+    environment: "DB_PASS"
+  dbRootPass:
+    environment: "DB_ROOT_PASSWORD"
 services:
   app:
     build: .
@@ -10,17 +24,10 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: mysql://root:root@db:3307/todo
-      HOST: localhost
-      HTTP_PORT: 3000
-      TOKEN_SECRET_KEY: "ABC!@#"
-      SALT_ROUNDS: 10
-      OAUTH_KEYS_FILE: "oAuth2.keys.json"
-      LOG_LEVEL: info
-      SWAGGER_DOC_FILE: "./src/HTTP/swagger/swaggerDoc.json"
-      EMAIL_USER: "hassaan.sohail@carbonteq.com"
-      EMAIL_PASS: "Carbonteq123"
-      SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/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"
+      DATABASE_URL: mysql://${dbUser}:${dbPass}@db:3307/todo
+      TOKEN_SECRET_KEY: ${tokenSecretKey}
+      EMAIL_USER: ${emailUser}
+      EMAIL_PASS: ${emailPass}
 
     networks:
       - todo-network
@@ -33,7 +40,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "db", "-P", "3306", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "db", "-P", "3306", "-u", "${dbUser}", "-p${dbPass}"]
       interval: 5s
       timeout: 3s
       retries: 5
