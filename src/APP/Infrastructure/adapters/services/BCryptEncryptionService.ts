@@ -13,7 +13,7 @@ export class BCryptEncryptionService implements IEncryptionService {
 
     encryptPassword(str: string): Result<string, Error> {
         try {
-            return Result.Ok(this.client.hashSync(str, config.saltRounds))
+            return Result.Ok(this.client.hashSync(str, parseInt(String(config.saltRounds))))
         } catch (error) {
             return Result.Err(new EncryptionServiceFailure("encryptPassword"));
         }

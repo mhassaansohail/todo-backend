@@ -29,9 +29,10 @@ container.register("UniqueIDGenerator", { useClass: UUIDGenerator });
 container.register("UserService", { useClass: UserService });
 container.register("TodoService", { useClass: TodoService });
 
+const authMiddleware = container.resolve(AuthMiddleware);
+const errorInterceptor = container.resolve(ErrorInterceptor);
 const oAuthService = container.resolve(OAuthService);
 const authService = container.resolve(AuthService);
-const authMiddleware = container.resolve(AuthMiddleware);
 const authController = container.resolve(AuthController);
 const userRepository = container.resolve(PrismaUserRepository);
 const todoRepository = container.resolve(PrismaTodoRepository);
@@ -39,7 +40,6 @@ const userService = container.resolve(UserService);
 const todoService = container.resolve(TodoService);
 const todoController = container.resolve(TodoController);
 const userController = container.resolve(UserController);
-const errorInterceptor = container.resolve(ErrorInterceptor)
 
 export {
     container,

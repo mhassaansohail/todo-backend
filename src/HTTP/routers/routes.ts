@@ -7,9 +7,8 @@ import todoRouter from './todoRouter';
 import { config } from '../../APP/Infrastructure/config';
 import { ErrorInterceptor } from '../middlewares/ErrorInterceptor.middleware';
 
+const errorInterceptor = new ErrorInterceptor();
 const authMiddleware = new AuthMiddleware();
-const errorHandler = new ErrorInterceptor();
-
 export const addRoutes = async (app: any): Promise<void> => {
     const swaggerFilePath = String(config.swaggerDocFile);
     const swaggerDocument = await import(resolve(swaggerFilePath));
@@ -17,5 +16,5 @@ export const addRoutes = async (app: any): Promise<void> => {
     app.use('/auth', authRouter);
     app.use('/api/user', authMiddleware.authenticateUser, userRouter);
     app.use('/api/todo', authMiddleware.authenticateUser, todoRouter);
-    app.use(errorHandler.handler);
+    app.use(errorInterceptor.handler);
 }

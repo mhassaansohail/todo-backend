@@ -68,7 +68,7 @@ export class PrismaUserRepository extends UserRepository {
             if (fetchedUser !== null) {
                 return Result.Ok(User.fromObj(UserDTO.toDomain(fetchedUser)));
             }
-            return Result.Err(new Error("User not found."));
+            return Result.Err(new UserNotFound(serializedUserId));
         } catch (error: any) {
             this.logger.error(error.message);
             return Result.Err(new DbMalfunction("fetchById"));

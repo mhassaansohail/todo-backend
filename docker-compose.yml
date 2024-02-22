@@ -14,9 +14,13 @@ secrets:
     environment: "DB_PASS"
   dbRootPass:
     environment: "DB_ROOT_PASSWORD"
+
 services:
   app:
-    build: .
+    build:
+      context: ./Ops
+      dockerfile: db.Dockerfile
+
     container_name: todo-app
     ports:
       - "3000:3000"
@@ -24,23 +28,26 @@ services:
       db:
         condition: service_healthy
     environment:
+      MYSQL_ROOT_PASSWORD: ${dbRootPass}
       DATABASE_URL: mysql://${dbUser}:${dbPass}@db:3307/todo
       TOKEN_SECRET_KEY: ${tokenSecretKey}
       EMAIL_USER: ${emailUser}
       EMAIL_PASS: ${emailPass}
-
     networks:
       - todo-network
 
   db:
-    image: mysql
+    build:
+      context: ./Ops
+      dockerfile: db.Dockerfile
     container_name: todo-db
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${dbRootPass}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "db", "-P", "3306", "-u", "${dbUser}", "-p${dbPass}"]
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "db", "-P", "3306", "-u", "${dbUser}", "-p${dbPass}"]
       interval: 5s
       timeout: 3s
       retries: 5

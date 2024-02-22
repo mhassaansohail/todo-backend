@@ -10,4 +10,7 @@ export const config = {
     smtpEmailUser: process.env.EMAIL_USER,
     smtpEmailPass: process.env.EMAIL_PASS,
     slackWebhookURL: process.env.SLACK_WEBHOOK_URL,
+    dSN: process.env.SENTRY_DSN,
+    newRelicLicenseKey: process.env.NEW_RELIC_LICENSE_KEY,
+    newRelicAppName: process.env.NEW_RELIC_APP_NAME
 }

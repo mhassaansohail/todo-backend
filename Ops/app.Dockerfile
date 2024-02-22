@@ -2,10 +2,9 @@ FROM node:latest
 
 WORKDIR /app
 
-COPY ../src ./src
 COPY ../package*.json ./
 COPY ../prisma ./prisma/
-COPY ../dist/src ./dist
+COPY ../dist/src ./src
 COPY ../oAuth2.keys.json ./
 COPY ../.env ./
 

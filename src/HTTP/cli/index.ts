@@ -1,5 +1,7 @@
+// import "newrelic";
 import dotenv from 'dotenv';
 dotenv.config();
+require('newrelic');
 import { config } from '../../APP/Infrastructure/config';
 import { Command } from 'commander';
 import app from '../bootstrap/app';
