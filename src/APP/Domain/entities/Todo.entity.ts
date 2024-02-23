@@ -1,5 +1,5 @@
 import { BaseEntity, DateTime } from "@carbonteq/hexapp";
-import { TodoAttributes } from "../attributes/todo";
+import { TodoAttributes } from "../attributes/Todo.attributes";
 
 interface ITodo {
     Id: string;

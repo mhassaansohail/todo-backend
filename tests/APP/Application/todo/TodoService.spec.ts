@@ -1,23 +1,27 @@
 import "reflect-metadata";
-import { expect } from 'chai';
-import { TodoService } from '../../../../src/APP/Application/todo/TodoService';
-import { TodoRepository } from '../../../../src/APP/Domain/repositories/TodoRepository';
-import { IEventEmitter } from '../../../../src/APP/Application/events/IEventEmitter';
 import { Result } from '@carbonteq/fp';
-import { PaginatedCollection } from '../../../../src/APP/Domain/pagination/PaginatedCollection';
+import { AppErrStatus } from "@carbonteq/hexapp";
+import { expect } from 'chai';
 import sinon from 'sinon';
-import Todo from '../../../../src/APP/Domain/entities/Todo';
 import { v4 } from "uuid";
+import { TodoService } from '../../../../src/APP/Application/todo/Todo.service';
+import { TodoRepository } from '../../../../src/APP/Domain/repositories/Todo.repository';
+import { EventEmitter } from '../../../../src/APP/Application/events/EventEmitter';
+import { PaginatedCollection } from '../../../../src/APP/Domain/pagination/PaginatedCollection';
+import Todo from '../../../../src/APP/Domain/entities/Todo.entity';
 import { AddTodoDto, UpdateTodoDto } from "../../../../src/APP/Application/DTO";
+import { DbMalfunction } from "../../../../src/APP/Infrastructure/adapters/repositories/exceptions/shared/DbMalfunction.exception";
+import { TodoNotFound } from "../../../../src/APP/Domain/exceptions/todo/TodoNotFound.exception";
+import { TodoAlreadyExists } from "../../../../src/APP/Infrastructure/adapters/repositories/exceptions/todo/TodoAlreadyExists.exception";
 
 describe('TodoService', () => {
     let todoService: TodoService;
     let todoRepositoryMock: TodoRepository;
-    let eventEmitterMock: IEventEmitter;
+    let eventEmitterMock: EventEmitter;
 
     beforeEach(() => {
         todoRepositoryMock = {} as TodoRepository;
-        eventEmitterMock = {} as IEventEmitter;
+        eventEmitterMock = {} as EventEmitter;
         todoService = new TodoService(todoRepositoryMock, eventEmitterMock);
     });
 
@@ -48,14 +52,13 @@ describe('TodoService', () => {
     it('should handle error when getting todos paginated', async () => {
         const pageNumber = 1;
         const pageSize = 10;
-        const conditionParams = { completed: false };
-        const errorMessage = 'Error fetching todos';
-        todoRepositoryMock.countTotalRows = sinon.stub().rejects(new Error(errorMessage));
+        const errorStatus = AppErrStatus.ExternalServiceFailure;;
+        todoRepositoryMock.countTotalRows = sinon.stub().rejects(new DbMalfunction(""));
 
         const result = await todoService.getTodos({ pageNumber, pageSize, title: "", description: "" });
 
         expect(result.isErr()).to.be.true;
-        expect(result.unwrapErr().message).to.equal(errorMessage);
+        expect(result.unwrapErr().status).to.equal(errorStatus);
     });
 
     it('should get todo by ID', async () => {
@@ -71,13 +74,13 @@ describe('TodoService', () => {
 
     it('should handle error when getting todo by ID', async () => {
         const todoId = v4();
-        const errorMessage = 'Error fetching todo';
-        todoRepositoryMock.fetchById = sinon.stub().rejects(new Error(errorMessage));
+        const errorStatus = AppErrStatus.NotFound;
+        todoRepositoryMock.fetchById = sinon.stub().rejects(new TodoNotFound(''));
 
         const result = await todoService.getTodoById({ todoId });
 
         expect(result.isErr()).to.be.true;
-        expect(result.unwrapErr().message).to.equal(errorMessage);
+        expect(result.unwrapErr().status).to.equal(errorStatus);
     });
 
     it('should add a todo', async () => {
@@ -101,13 +104,14 @@ describe('TodoService', () => {
             description: 'New description',
             completed: false
         };
+        const errorStatus = AppErrStatus.AlreadyExists;
         const errorMessage = 'Error adding todo';
-        todoRepositoryMock.insert = sinon.stub().rejects(new Error(errorMessage));
+        todoRepositoryMock.insert = sinon.stub().rejects(new TodoAlreadyExists(errorMessage));
 
         const result = await todoService.addTodo(createTodoDto);
 
         expect(result.isErr()).to.be.true;
-        expect(result.unwrapErr().message).to.equal(errorMessage);
+        expect(result.unwrapErr().status).to.equal(errorStatus);
     });
 
     it('should update a todo', async () => {
@@ -134,19 +138,20 @@ describe('TodoService', () => {
             description: 'Updated description',
             completed: true
         };
-        const errorMessage = 'Error updating todo';
+        const errorStatus = AppErrStatus.ExternalServiceFailure;
         todoRepositoryMock.fetchById = sinon.stub().resolves(Result.Ok(Todo.create('Old Todo', 'Old description', false)));
-        todoRepositoryMock.update = sinon.stub().rejects(new Error(errorMessage));
+        todoRepositoryMock.update = sinon.stub().rejects(new DbMalfunction(''));
 
         const result = await todoService.updateTodo(updateTodoDto);
 
         expect(result.isErr()).to.be.true;
-        expect(result.unwrapErr().message).to.equal(errorMessage);
+        expect(result.unwrapErr().status).to.equal(errorStatus);
     });
 
     it('should delete a todo by ID', async () => {
         const todoId = v4();
         const fakeTodo = Todo.create('Test Todo', 'Test description', false);
+        todoRepositoryMock.existsById = sinon.stub().resolves(Result.Ok(true));
         todoRepositoryMock.deleteById = sinon.stub().resolves(Result.Ok(fakeTodo));
         eventEmitterMock.emit = sinon.stub().resolves(true);
 
@@ -158,12 +163,14 @@ describe('TodoService', () => {
 
     it('should handle error when deleting a todo by ID', async () => {
         const todoId = v4();
+        const errorStatus = AppErrStatus.NotFound;
         const errorMessage = 'Error deleting todo';
-        todoRepositoryMock.deleteById = sinon.stub().rejects(new Error(errorMessage));
+        // todoRepositoryMock.deleteById = sinon.stub().rejects(new Error(errorMessage));
+        todoRepositoryMock.existsById = sinon.stub().rejects(new TodoNotFound(errorMessage));
 
         const result = await todoService.deleteTodo({ todoId });
 
         expect(result.isErr()).to.be.true;
-        expect(result.unwrapErr().message).to.equal(errorMessage);
+        expect(result.unwrapErr().status).to.equal(errorStatus);
     });
 });

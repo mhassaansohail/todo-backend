@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon, { SinonStub } from 'sinon';
-import { PrismaTodoRepository } from '../../../../../../src/APP/Infrastructure/adapters/repositories/PrismaRepositories/TodoRepository';
-import Todo from '../../../../../../src/APP/Domain/entities/Todo';
+import { PrismaTodoRepository } from '../../../../../../src/APP/Infrastructure/adapters/repositories/PrismaRepositories/Todo.repository';
+import Todo from '../../../../../../src/APP/Domain/entities/Todo.entity';
 import { TodoNotFound } from '../../../../../../src/APP/Domain/exceptions/todo/TodoNotFound.exception';
 import { UUIDVo } from '@carbonteq/hexapp';
 import { v4 } from 'uuid';

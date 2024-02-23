@@ -1,11 +1,11 @@
 import { inject, injectable } from "tsyringe";
 import { AppError, AppResult, UUIDVo } from "@carbonteq/hexapp";
 import { Result } from "@carbonteq/fp";
-import Todo from "../../Domain/entities/Todo";
-import { TodoRepository } from "../../Domain/repositories/TodoRepository";
+import Todo from "../../Domain/entities/Todo.entity";
+import { TodoRepository } from "../../Domain/repositories/Todo.repository";
 import { PaginatedCollection } from "../../Domain/pagination/PaginatedCollection";
 import { PaginationOptions } from "../../Domain/pagination/PaginatedOptions";
-import { IEventEmitter } from "../events/IEventEmitter";
+import { EventEmitter } from "../events/EventEmitter";
 import { TodoDeletedEvent } from "../events/TodoDeletedEvent";
 import { AddTodoDto, FetchTodoPaginationOptionsDto, TodoIdDto, UpdateTodoDto } from "../DTO";
 import { TodoNotFound } from "../../Domain/exceptions/todo/TodoNotFound.exception";
@@ -14,8 +14,8 @@ import { TodoNotFound } from "../../Domain/exceptions/todo/TodoNotFound.exceptio
 @injectable()
 export class TodoService {
     private repository: TodoRepository;
-    private eventEmitter: IEventEmitter;
-    constructor(@inject("TodoRepository") repository: TodoRepository, eventEmitter: IEventEmitter) {
+    private eventEmitter: EventEmitter;
+    constructor(@inject("TodoRepository") repository: TodoRepository, @inject("EventEmitter") eventEmitter: EventEmitter) {
         this.repository = repository;
         this.eventEmitter = eventEmitter;
     }

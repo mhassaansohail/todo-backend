@@ -1,4 +1,4 @@
-export abstract class IEventEmitter {
+export abstract class EventEmitter {
     emitter: any;
 
     abstract on(eventName: string, listener: any): any

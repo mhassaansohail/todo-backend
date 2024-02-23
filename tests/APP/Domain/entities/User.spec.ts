@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import User from '../../../../src/APP/Domain/entities/User';
+import User from '../../../../src/APP/Domain/entities/User.entity';
 import { InvalidAgeException } from '../../../../src/APP/Domain/exceptions/user/InvalidAge.exception';
 import { UUIDVo } from '@carbonteq/hexapp';
 

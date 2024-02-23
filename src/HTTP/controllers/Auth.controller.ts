@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { AuthService } from '../../APP/Application/auth/AuthService';
+import { AuthService } from '../../APP/Application/auth/Auth.service';
 import { Logger } from '../../APP/Infrastructure/logger/Logger';
 import { inject, injectable } from 'tsyringe';
 import { AuthCodeDto, LoginDto } from '../../APP/Application/DTO';

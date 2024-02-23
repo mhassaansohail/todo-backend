@@ -1,5 +1,5 @@
 import { Result } from "@carbonteq/fp";
-import { UserRepository } from "../../Domain/repositories/UserRepository";
+import { UserRepository } from "../../Domain/repositories/User.repository";
 import { inject, injectable } from "tsyringe";
 import { IJWTAuthService } from "../ports/IJWTAuthService";
 import { IOAuthService } from "../ports/IOAuthService";

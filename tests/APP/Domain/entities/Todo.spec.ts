@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Todo from '../../../../src/APP/Domain/entities/Todo';
+import Todo from '../../../../src/APP/Domain/entities/Todo.entity';
 import { UUIDVo } from '@carbonteq/hexapp';
 
 describe('Todo Entity', () => {

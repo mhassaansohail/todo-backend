@@ -1,9 +1,9 @@
 import { singleton } from 'tsyringe';
-import { IEventEmitter } from '../../Application/events/IEventEmitter';
+import { EventEmitter } from '../../Application/events/EventEmitter';
 import { EventEmitter as Emitter } from 'events';
 
 @singleton()
-export class EventManager implements IEventEmitter {
+export class EventManager implements EventEmitter {
     emitter: any;
     constructor() {
         this.emitter = new Emitter();

@@ -1,6 +1,6 @@
 import { BaseEntity, DateTime, UUIDVo } from "@carbonteq/hexapp";
 import { InvalidAgeException } from "../exceptions/user/InvalidAge.exception";
-import { UserAttributes } from "../attributes/user";
+import { UserAttributes } from "../attributes/User.attributes";
 
 interface IUser {
     Id: string;

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../../APP/Application/auth/AuthService';
+import { AuthService } from '../../APP/Application/auth/Auth.service';
 import { Logger } from '../../APP/Infrastructure/logger/Logger';
 import { autoInjectable } from "tsyringe";
-import { AuthHeaderDto } from '../../APP/Application/DTO/';
+import { AuthHeaderDto } from '../../APP/Application/DTO';
 import { VerifyTokenDto } from '../../APP/Application/DTO';
 
 

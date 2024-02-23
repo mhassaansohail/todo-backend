@@ -1,14 +1,14 @@
 import { inject, injectable } from "tsyringe";
-import User from "../../../../Domain/entities/User";
-import { UserRepository } from "../../../../Domain/repositories/UserRepository";
+import User from "../../../../Domain/entities/User.entity";
+import { UserRepository } from "../../../../Domain/repositories/User.repository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../../logger/Logger";
 import { RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
 import { Result } from "@carbonteq/fp";
-import { UserDTO } from "../DTO/user.dto";
+import { UserDTO } from "../DTO/User.dto";
 import { UserNotFound } from "../../../../Domain/exceptions/user/UserNotFound.exception";
 import { DbMalfunction } from "../exceptions/shared/DbMalfunction.exception";
-import { UserNotFoundWithParams } from "../exceptions/user/UserNotFoundWithParams.exception";
+import { UserNotFoundWithParams } from "../exceptions/user/UserNotFoundWithParam.exception";
 
 @injectable()
 export class PrismaUserRepository extends UserRepository {
@@ -85,7 +85,7 @@ export class PrismaUserRepository extends UserRepository {
                     userId: true
                 }
             }));
-            return Result.Ok(!!userExists);
+            return Result.Ok(!!Boolean(userExists));
         } catch (error: any) {
             this.logger.error(error.message);
             return Result.Err(new DbMalfunction(`existsBy${prop}`));

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { PrismaUserRepository } from '../../../../../../src/APP/Infrastructure/adapters/repositories/PrismaRepositories/UserRepository';
-import User from '../../../../../../src/APP/Domain/entities/User';
+import { PrismaUserRepository } from '../../../../../../src/APP/Infrastructure/adapters/repositories/PrismaRepositories/User.repository';
+import User from '../../../../../../src/APP/Domain/entities/User.entity';
 import { UserNotFound } from '../../../../../../src/APP/Domain/exceptions/user/UserNotFound.exception';
 import { UUIDVo } from '@carbonteq/hexapp';
 import { v4 } from 'uuid';

@@ -1,4 +1,4 @@
-import User from "../../Domain/entities/User";
+import User from "../../Domain/entities/User.entity";
 import { inject, injectable } from "tsyringe";
 import { IMessageSender } from "../ports/IMessageSender";
 import { IEmailSender } from "../ports/IEmailSender";
@@ -31,7 +31,7 @@ export class NotificationService {
         }
     }
 
-    async sendNotifications(users: User[], message: string): Promise<Result<undefined, Error>> {
+    async sendNotifications(users: User[], message: string): Promise<Result<any, Error>> {
         try {
             await this.sendMessage(message);
             for (const user of users) {

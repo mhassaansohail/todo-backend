@@ -1,13 +1,13 @@
 import { inject, injectable } from "tsyringe";
-import Todo from "../../../../Domain/entities/Todo";
-import { TodoRepository } from "../../../../Domain/repositories/TodoRepository";
+import Todo from "../../../../Domain/entities/Todo.entity";
+import { TodoRepository } from "../../../../Domain/repositories/Todo.repository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../../logger/Logger";
-import { TodoAttributes } from "../../../../Domain/attributes/todo";
+import { TodoAttributes } from "../../../../Domain/attributes/Todo.attributes";
 import { RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
 import { Result } from '@carbonteq/fp'
 import { TodoNotFound } from "../../../../Domain/exceptions/todo/TodoNotFound.exception";
-import { TodoDTO } from "../DTO/todo.dto";
+import { TodoDTO } from "../DTO/Todo.dto";
 import { DbMalfunction } from "../exceptions/shared/DbMalfunction.exception";
 
 @injectable()
@@ -69,7 +69,7 @@ export class PrismaTodoRepository extends TodoRepository {
                     todoId: true
                 }
             }));
-            return Result.Ok(!!todoExists);
+            return !!todoExists ? Result.Ok(!!todoExists) : Result.Err(new TodoNotFound(todoId.serialize()));
         } catch (error: any) {
             this.logger.error(error.message);
             return Result.Err(new DbMalfunction("existsById"));

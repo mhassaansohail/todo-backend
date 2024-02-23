@@ -1,7 +1,7 @@
 import { BaseRepository, BaseRepositoryExtended, RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
-import Todo from "../entities/Todo";
+import Todo from "../entities/Todo.entity";
 import { Result } from "@carbonteq/fp";
-import { TodoAttributes } from "../attributes/todo";
+import { TodoAttributes } from "../attributes/Todo.attributes";
 import { InvalidOperationOnTodo } from "../exceptions/todo/InvalidOperationOnTodo.exception";
 
 export abstract class TodoRepository extends BaseRepository<Todo> {

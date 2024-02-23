@@ -1,8 +1,8 @@
 import { BaseRepository, RepositoryResult } from "@carbonteq/hexapp";
 import { Result } from "@carbonteq/fp";
 import { InvalidOperationOnUser } from "../exceptions/user/InvalidOperationOnUser.exception";
-import User from "../entities/User";
-import { UserAttributes } from "../attributes/user";
+import User from "../entities/User.entity";
+import { UserAttributes } from "../attributes/User.attributes";
 
 export abstract class UserRepository extends BaseRepository<User> {
 
