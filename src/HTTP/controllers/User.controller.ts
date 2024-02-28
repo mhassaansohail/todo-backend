@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { UserService } from "../../APP/Application/services/user/User.service";
+import { UserService } from "../../APP/Application/services/user/UserService";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
 import { CreateUserDto, FetchUserPaginationOptionsDto, UpdateUserDto, UserDto, UserIdDto } from "../../APP/Application/dto";

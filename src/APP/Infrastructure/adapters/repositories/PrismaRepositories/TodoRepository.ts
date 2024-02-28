@@ -1,9 +1,8 @@
 import { inject, injectable } from "tsyringe";
-import Todo from "../../../../Domain/entities/TodoEntity";
+import Todo, { ITodoAttributes } from "../../../../Domain/entities/TodoEntity";
 import { TodoRepository } from "../../../../Domain/repositories/TodoRepository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../../logger/Logger";
-import { TodoAttributes } from "../../../../Domain/attributes/TodoAttributes";
 import { RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
 import { Result } from '@carbonteq/fp'
 import { TodoNotFound } from "../../../../Domain/exceptions/todo/TodoNotFoundException";
@@ -21,7 +20,7 @@ export class PrismaTodoRepository extends TodoRepository {
         this.client = client;
     }
 
-    async countTotalRows(conditionParams: Partial<TodoAttributes>): Promise<RepositoryResult<number>> {
+    async countTotalRows(conditionParams: Partial<ITodoAttributes>): Promise<RepositoryResult<number>> {
         try {
             const conditions = {
                 OR: [
@@ -38,7 +37,7 @@ export class PrismaTodoRepository extends TodoRepository {
         }
     }
 
-    async fetchAllPaginated(offset: number, limit: number, queryParams: Partial<Todo>): Promise<RepositoryResult<Todo[]>> {
+    async fetchAllPaginated(offset: number, limit: number, queryParams: Partial<ITodoAttributes>): Promise<RepositoryResult<Todo[]>> {
         try {
             const conditions = {
                 OR: [

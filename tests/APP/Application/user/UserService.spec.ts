@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { Result } from '@carbonteq/fp';
 import sinon from 'sinon';
 import { v4 } from 'uuid';
-import { UserService } from '../../../../src/APP/Application/services/user/User.service';
+import { UserService } from '../../../../src/APP/Application/services/user/UserService';
 import { UserRepository } from '../../../../src/APP/Domain/repositories/UserRepository';
 import { IEncryptionService } from '../../../../src/APP/Application/interfaces/IEncryptionService';
 import User from '../../../../src/APP/Domain/entities/UserEntity';

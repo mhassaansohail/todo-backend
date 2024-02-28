@@ -7,8 +7,8 @@ export class PaginatedCollection<T> {
     pageSize: number;
     pageNumber: number;
     totalPages: number;
-    prevPage: number | undefined;
-    nextPage: number | undefined;
+    hasPrevPage: boolean;
+    hasNextPage: boolean;
 
     constructor(rows: T[], totalRows: number, pageNumber: number, pageSize: number) {
         this.rows = rows;
@@ -17,16 +17,16 @@ export class PaginatedCollection<T> {
         this.totalRows = totalRows;
         this.pageNumber = pageNumber;
         this.totalPages = this.calculateTotalPages();
-        this.prevPage = this.calculatePrevPage();
-        this.nextPage = this.calculateNextPage();
+        this.hasPrevPage = this.prevPageExists();
+        this.hasNextPage = this.nextPageExists();
     }
 
-    private calculatePrevPage(): number | undefined {
-        return this.pageNumber > 1 ? this.pageNumber - 1 : undefined;
+    private prevPageExists(): boolean {
+        return this.pageNumber > 1 ? true : false;
     }
 
-    private calculateNextPage(): number | undefined {
-        return this.pageNumber < this.totalPages ? this.pageNumber + 1 : undefined;
+    private nextPageExists(): boolean {
+        return this.pageNumber < this.totalPages ? true : false;
     }
 
     private calculateTotalPages(): number {

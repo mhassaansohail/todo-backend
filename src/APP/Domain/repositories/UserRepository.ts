@@ -1,8 +1,7 @@
 import { BaseRepository, RepositoryResult } from "@carbonteq/hexapp";
 import { Result } from "@carbonteq/fp";
 import { InvalidOperationOnUser } from "../exceptions/user/InvalidOperationOnUserException";
-import User from "../entities/UserEntity";
-import { UserAttributes } from "../attributes/UserAttributes";
+import User, { IUserAttributes } from "../entities/UserEntity";
 
 export abstract class UserRepository extends BaseRepository<User> {
 
@@ -11,12 +10,12 @@ export abstract class UserRepository extends BaseRepository<User> {
     }
 
     abstract fetchAllPaginated(
-        offset: number, limit: number, conditionParams: Partial<UserAttributes>)
+        offset: number, limit: number, conditionParams: Partial<IUserAttributes>)
         : Promise<RepositoryResult<User[]>>;
 
-    abstract existsBy(prop: keyof User, value: User[keyof User]): Promise<RepositoryResult<boolean>>
+    abstract existsBy(prop: keyof IUserAttributes, value: IUserAttributes[keyof IUserAttributes]): Promise<RepositoryResult<boolean>>
 
     abstract fetchByUserNameOrEmail(userName?: string, email?: string): Promise<RepositoryResult<User>>;
 
-    abstract countTotalRows(conditionParams: Partial<UserAttributes>): Promise<RepositoryResult<number>>;
+    abstract countTotalRows(conditionParams: Partial<IUserAttributes>): Promise<RepositoryResult<number>>;
 }

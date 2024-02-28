@@ -26,7 +26,7 @@ export class UserService {
         try {
             const conditionParams = { name, userName, email }
             const totalUserRows = (await this.repository.countTotalRows(conditionParams)).unwrap();
-            const paginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
+            const paginationOptions: PaginationOptions = new PaginationOptions({ pageSize, pageNumber });
             const userRows = (await this.repository.fetchAllPaginated
                 (paginationOptions.offset, paginationOptions.limit, conditionParams)).unwrap();
             return AppResult.fromResult(Result.Ok(new PaginatedCollection
@@ -66,7 +66,7 @@ export class UserService {
             password = this.encryptionService.encryptPassword(password).unwrap();
             const toUpdateUser = (await this.repository.fetchById(UUIDVo.fromStrNoValidation(userId))).unwrap();
             if ((await this.repository.existsBy("userName", userName)).unwrap() && toUpdateUser.userName !== userName) {
-                    return AppResult.fromResult(Result.Err(new UserAlreadyExists("userName", userName)));
+                return AppResult.fromResult(Result.Err(new UserAlreadyExists("userName", userName)));
             }
             if (((await this.repository.existsBy("email", email)).unwrap() && toUpdateUser.email !== email)) {
                 return AppResult.fromResult(Result.Err(new UserAlreadyExists("email", email)));

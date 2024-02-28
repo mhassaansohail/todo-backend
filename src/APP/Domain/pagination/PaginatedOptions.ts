@@ -1,10 +1,14 @@
 import { PaginationOptionsException } from "../exceptions/pagination/PaginationOptionsException";
 
+export type IPaginationOptions = {
+    pageSize: number;
+    pageNumber: number;
+}
+
 export class PaginationOptions {
     private pageSize: number;
     private pageNumber: number;
-
-    constructor (pageSize: number, pageNumber: number) {
+    constructor({ pageSize, pageNumber }: IPaginationOptions) {
         if (!this.validateParams(pageSize, pageNumber)) {
             throw new PaginationOptionsException("Pagination Options Error: Page number and pageSize options should be greater than 1.")
         }

@@ -8,7 +8,7 @@ import { AuthMiddleware } from "../../../HTTP/middlewares/Auth.middleware";
 import { AuthController } from "../../../HTTP/controllers/Auth.controller";
 import { TodoController } from "../../../HTTP/controllers/Todo.controller";
 import { UserController } from "../../../HTTP/controllers/User.controller";
-import { UserService } from "../../Application/services/user/User.service";
+import { UserService } from "../../Application/services/user/UserService";
 import { PrismaUserRepository } from "../adapters/repositories/PrismaRepositories/UserRepository";
 import { PrismaTodoRepository } from "../adapters/repositories/PrismaRepositories/TodoRepository";
 import { BCryptEncryptionService } from "../adapters/services/BCryptEncryptionService";

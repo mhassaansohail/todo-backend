@@ -24,7 +24,7 @@ export class TodoService {
         try {
             const conditionParams = { title, description }
             const totalTodoRows = (await this.repository.countTotalRows(conditionParams)).unwrap();
-            const todoPaginationOptions: PaginationOptions = new PaginationOptions(pageSize, pageNumber);
+            const todoPaginationOptions: PaginationOptions = new PaginationOptions({ pageSize, pageNumber });
             const todoRows = (await this.repository.fetchAllPaginated(todoPaginationOptions.offset, todoPaginationOptions.limit, conditionParams)).unwrap();
             return AppResult.fromResult(Result.Ok(new PaginatedCollection(todoRows, totalTodoRows, pageNumber, pageSize)));
         } catch (error: any) {
@@ -50,10 +50,10 @@ export class TodoService {
         }
     }
 
-    async updateTodo(todo: UpdateTodoDto): Promise<AppResult<Todo>> {
+    async updateTodo({ todoId, title, description, completed }: UpdateTodoDto): Promise<AppResult<Todo>> {
         try {
-            const toUpdateTodo = (await this.repository.fetchById(UUIDVo.fromStrNoValidation(todo.todoId))).unwrap();
-            toUpdateTodo.update(todo);
+            const toUpdateTodo = (await this.repository.fetchById(UUIDVo.fromStrNoValidation(todoId))).unwrap();
+            toUpdateTodo.update({ title, description, completed });
             return AppResult.fromResult(Result.Ok((await this.repository.update(toUpdateTodo)).unwrap()));
         } catch (error: any) {
             return AppResult.fromResult(Result.Err(error));

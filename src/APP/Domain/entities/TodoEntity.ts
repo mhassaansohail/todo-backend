@@ -1,24 +1,18 @@
-import { BaseEntity, DateTime } from "@carbonteq/hexapp";
-import { TodoAttributes } from "../attributes/TodoAttributes";
+import { BaseEntity } from "@carbonteq/hexapp";
+import { IEntity } from "@carbonteq/hexapp";
 
-interface ITodo {
+export type ITodoAttributes = {
     Id: string;
     title: string;
     description: string;
     completed: boolean;
-    createdAt: DateTime;
-    updatedAt: DateTime;
-}
+};
 
-interface IUpdateTodo {
-    title: string;
-    description: string;
-    completed: boolean;
-}
+type TodoAttributes = IEntity & Omit<ITodoAttributes, 'Id'>;
 
+type ITodo = ITodoAttributes & Omit<IEntity, 'Id'>;
 
-
-export class Todo extends BaseEntity implements TodoAttributes {
+class Todo extends BaseEntity implements TodoAttributes {
     private _title: string;
     private _description: string;
     private _completed: boolean;
@@ -41,7 +35,7 @@ export class Todo extends BaseEntity implements TodoAttributes {
     get completed(): boolean {
         return this._completed;
     }
-    
+
 
     static create(title: string, description: string, completed: boolean): Todo {
         return new Todo(title, description, completed);
@@ -70,10 +64,16 @@ export class Todo extends BaseEntity implements TodoAttributes {
         };
     }
 
-    update({ title, description, completed }: IUpdateTodo) {
-        this._title = title;
-        this._description = description;
-        this._completed = completed;
+    update({ title, description, completed }: Partial<ITodo>) {
+        if (title) {
+            this._title = title;
+        }
+        if (description) {
+            this._description = description;
+        }
+        if (completed) {
+            this._completed = completed;
+        }
         this.markUpdated();
     }
 }

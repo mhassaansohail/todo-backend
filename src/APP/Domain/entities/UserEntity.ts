@@ -1,25 +1,19 @@
-import { BaseEntity, DateTime, UUIDVo } from "@carbonteq/hexapp";
+import { BaseEntity } from "@carbonteq/hexapp";
+import { IEntity } from "@carbonteq/hexapp";
 import { InvalidAgeException } from "../exceptions/user/InvalidAgeException";
-import { UserAttributes } from "../attributes/UserAttributes";
 
-interface IUser {
+export type IUserAttributes = {
     Id: string;
     name: string;
     email: string;
     userName: string;
     password: string;
     age: number;
-    createdAt: DateTime;
-    updatedAt: DateTime;
 };
 
-interface UpdateUser {
-    name: string;
-    email: string;
-    userName: string;
-    password: string;
-    age: number;
-}
+type UserAttributes = IEntity & Omit<IUserAttributes, "Id">;
+
+type IUser = IUserAttributes & Omit<IEntity, 'Id'>;
 
 class User extends BaseEntity implements UserAttributes {
     private _name: string;
@@ -87,7 +81,7 @@ class User extends BaseEntity implements UserAttributes {
         }
     }
 
-    update({name, email, userName, password, age}: Partial<UpdateUser>) {
+    update({name, email, userName, password, age}: Partial<IUser>) {
         if (name) {
             this._name = name;
         }
