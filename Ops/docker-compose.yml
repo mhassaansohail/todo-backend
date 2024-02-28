@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./ops/todoApp/app.Dockerfile
+
+    container_name: todo-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      NEW_RELIC_APP_NAME: ${NEW_RELIC_APP_NAME}
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASS}
+      HTTP_PORT: ${HTTP_PORT}
+      HOST: ${HOST}
+      TOKEN_SECRET_KEY: ${TOKEN_SECRET_KEY}
+      SALT_ROUNDS: ${SALT_ROUNDS}
+      OAUTH_KEYS_FILE: ${OAUTH_KEYS_FILE}
+      LOG_LEVEL: ${LOG_LEVEL}
+      SWAGGER_DOC_FILE: ${SWAGGER_DOC_FILE}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
+      SENTRY_DSN: ${SENTRY_DSN}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DATABASE_URL: mysql://${DB_ROOT_USER}:${DB_ROOT_PASS}@db:3306/trainingApp
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+    networks:
+      - todo-network
+
+  db:
+    build:
+      context: ../
+      dockerfile: ./ops/todoApp/db.Dockerfile
+    container_name: todo-db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
+
+
+volumes:
+  mysql-data:
