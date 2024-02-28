@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { UserAttributes } from '../../Domain/attributes/User.attributes';
 import bcrypt from 'bcrypt';
 
 function generateHashedPassword(password: string): string {
@@ -31,6 +30,21 @@ interface IUser {
     age: number;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export function createInitialUser(): IUser {
+    const plainPassword = "ali1234";
+    const hashedPassword = generateHashedPassword(plainPassword);
+    return {
+        userId: faker.string.uuid(),
+        name: "Ali",
+        userName: "ali",
+        email: "ali@gmail,com",
+        age: 25,
+        password: hashedPassword,
+        createdAt: faker.datatype.datetime(),
+        updatedAt: faker.datatype.datetime()
+    };
 }
 
 export function createRandomUser(): IUser {

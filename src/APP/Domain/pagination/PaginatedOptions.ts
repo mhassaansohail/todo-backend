@@ -1,4 +1,4 @@
-import { PaginationOptionsException } from "../exceptions/pagination/PaginationOptions.exception";
+import { PaginationOptionsException } from "../exceptions/pagination/PaginationOptionsException";
 
 export class PaginationOptions {
     private pageSize: number;

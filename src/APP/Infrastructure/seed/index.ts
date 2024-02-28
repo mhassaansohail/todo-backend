@@ -1,5 +1,5 @@
 import { createRandomTodo } from "../fakers/todo";
-import { createRandomUser } from "../fakers/user";
+import { createInitialUser, createRandomUser } from "../fakers/user";
 
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
@@ -11,7 +11,11 @@ const seedDatabase = async () => {
       data: randomTodo,
     });
   }
-
+  const initailUser = createInitialUser();
+  await prisma.user.create({
+    data: initailUser,
+  });
+  
   for (let i = 0; i < 5; i++) {
     const randomUser = createRandomUser();
     await prisma.user.create({

@@ -4,12 +4,13 @@
   "description": "todo app",
   "main": "index.js",
   "prisma": {
-    "seed": "ts-node ./src/APP/Infrastructure/seed/index.ts"
+    "seed": "node ./dist/APP/Infrastructure/seed/index.js"
   },
   "scripts": {
-    "build": "npx tsc",
-    "start": "node --experimental-loader=newrelic/esm-loader.mjs dist/src/HTTP/cli/index.js",
-    "test": "mocha './dist/tests/**/*.spec.js'"
+    "build": "npx tsc -b tsConfig.build.json",
+    "start": "node --experimental-loader=newrelic/esm-loader.mjs dist/HTTP/cli/index.js",
+    "dev": "ts-node src/HTTP/cli/index.ts",
+    "test": "mocha --require ts-node/register 'tests/**/*spec.ts'"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,7 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.7",
     "@types/nodemailer": "^6.4.14",
+    "@types/p-limit": "^2.2.0",
     "@types/sinon": "^17.0.3",
     "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^9.0.7",
@@ -54,6 +56,7 @@
     "nodemailer": "^6.9.9",
     "nodemon": "^3.0.2",
     "oxide.ts": "^1.0.0-next.6",
+    "p-limit": "^5.0.0",
     "pino": "^8.17.2",
     "prisma": "^5.8.0",
     "reflect-metadata": "^0.2.1",

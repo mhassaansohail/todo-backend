@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { PrismaUserRepository } from '../../../../../../src/APP/Infrastructure/adapters/repositories/PrismaRepositories/User.repository';
-import User from '../../../../../../src/APP/Domain/entities/User.entity';
-import { UserNotFound } from '../../../../../../src/APP/Domain/exceptions/user/UserNotFound.exception';
+import { PrismaUserRepository } from '../../../../../../src/APP/Infrastructure/adapters/repositories/PrismaRepositories/UserRepository';
+import User from '../../../../../../src/APP/Domain/entities/UserEntity';
+import { UserNotFound } from '../../../../../../src/APP/Domain/exceptions/user/UserNotFoundException';
 import { UUIDVo } from '@carbonteq/hexapp';
 import { v4 } from 'uuid';
-import { DbMalfunction } from '../../../../../../src/APP/Infrastructure/adapters/repositories/exceptions/shared/DbMalfunction.exception';
+import { DbMalfunction } from '../../../../../../src/APP/Infrastructure/adapters/repositories/exceptions/db/DbMalfunctionException';
 import { PrismaClient } from '@prisma/client';
 
 describe('UserRepository', () => {

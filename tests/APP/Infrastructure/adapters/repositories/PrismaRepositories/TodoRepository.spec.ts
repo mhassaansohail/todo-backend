@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import sinon, { SinonStub } from 'sinon';
-import { PrismaTodoRepository } from '../../../../../../src/APP/Infrastructure/adapters/repositories/PrismaRepositories/Todo.repository';
-import Todo from '../../../../../../src/APP/Domain/entities/Todo.entity';
-import { TodoNotFound } from '../../../../../../src/APP/Domain/exceptions/todo/TodoNotFound.exception';
+import { PrismaTodoRepository } from '../../../../../../src/APP/Infrastructure/adapters/repositories/PrismaRepositories/TodoRepository';
+import Todo from '../../../../../../src/APP/Domain/entities/TodoEntity';
+import { TodoNotFound } from '../../../../../../src/APP/Domain/exceptions/todo/TodoNotFoundException';
 import { UUIDVo } from '@carbonteq/hexapp';
 import { v4 } from 'uuid';
-import { DbMalfunction } from '../../../../../../src/APP/Infrastructure/adapters/repositories/exceptions/shared/DbMalfunction.exception';
+import { DbMalfunction } from '../../../../../../src/APP/Infrastructure/adapters/repositories/exceptions/db/DbMalfunctionException';
 import { PrismaClient } from '@prisma/client';
 
 describe('TodoRepository', () => {

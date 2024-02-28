@@ -1,4 +1,4 @@
-import { InsufficientPaginatedRowsException } from "../exceptions/pagination/InsufficientPaginatedRows.exception";
+import { InsufficientPaginatedRowsException } from "../exceptions/pagination/InsufficientPaginatedRowsException";
 
 export class PaginatedCollection<T> {
     rows: T[];

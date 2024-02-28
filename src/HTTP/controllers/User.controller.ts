@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { UserService } from "../../APP/Application/user/User.service";
+import { UserService } from "../../APP/Application/services/user/User.service";
 import { inject, injectable } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
-import { CreateUserDto, FetchUserPaginationOptionsDto, UpdateUserDto, UserDto, UserIdDto } from "../../APP/Application/DTO";
+import { CreateUserDto, FetchUserPaginationOptionsDto, UpdateUserDto, UserDto, UserIdDto } from "../../APP/Application/dto";
 
 @injectable()
 export class UserController {
@@ -16,17 +16,7 @@ export class UserController {
     getUsers = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
         try {
             const queryParamsValidation = FetchUserPaginationOptionsDto.create(req.query);
-            // if (queryParamsValidation.isErr()) {
-            //     const { message } = queryParamsValidation.unwrapErr();
-            //     this.logger.error(message);
-            //     return res.status(403).json({ status: "Unsuccesful", message });
-            // }
             const fetchedUsersResult = await this.service.getUsers(queryParamsValidation.unwrap());
-            // if (fetchedUsersResult.isErr()) {
-            //     const { message } = fetchedUsersResult.unwrapErr();
-            //     this.logger.error(message);
-            //     return res.status(400).json({ status: "Unsuccesful", message });
-            // }
             return res.status(200).json({ status: "Succesful", data: fetchedUsersResult.unwrap() });
         } catch (error) {
             next(error);
@@ -36,18 +26,7 @@ export class UserController {
     getUserById = async (req: Request, res: Response, next: NextFunction): Promise<Response | undefined> => {
         try {
             const userIdValidation = UserIdDto.create(req.params);
-            // if (userIdValidation.isErr()) {
-            //     const { message } = userIdValidation.unwrapErr()
-            //     this.logger.error(message);
-            //     return res.status(403).json({ status: "Unsuccesful", message });
-            // }
             const fetchedUserResult = await this.service.getUserById(userIdValidation.unwrap());
-            // if (fetchedUserResult.isErr()) {
-            //     const { message } = fetchedUserResult.unwrapErr()
-            //     this.logger.error(message);
-            //     return res.status(400).json({ status: "Unsuccesful", message });
-            // }
-            // return res.status(200).json({ status: "Succesful", data: UserDto.toPresentation(fetchedUserResult.unwrap()) });
             return res.status(200).json({ status: "Succesful", data: fetchedUserResult.unwrap() });
         } catch (error) {
             next(error);
@@ -68,8 +47,8 @@ export class UserController {
                 this.logger.error(message);
                 return res.status(400).json({ status: "Unsuccesful", message });
             }
-            // return res.status(201).json({ status: "Succesful", data: UserDto.toPresentation(createdUserResult.unwrap()) });
-            return res.status(201).json({ status: "Succesful", data: createdUserResult.unwrap() });
+            return res.status(201).json({ status: "Succesful", data: UserDto.toPresentation(createdUserResult.unwrap()) });
+            // return res.status(201).json({ status: "Succesful", data: createdUserResult.unwrap() });
         } catch (error) {
             next(error);
         }
@@ -95,8 +74,8 @@ export class UserController {
                 this.logger.error(message);
                 return res.status(400).json({ status: "Unsuccesful", message });
             }
-            // return res.status(200).json({ status: "Succesful", data: UserDto.toPresentation(updatedUserResult.unwrap()) });
-            return res.status(200).json({ status: "Succesful", data: updatedUserResult.unwrap() });
+            return res.status(200).json({ status: "Succesful", data: UserDto.toPresentation(updatedUserResult.unwrap()) });
+            // return res.status(200).json({ status: "Succesful", data: updatedUserResult.unwrap() });
         } catch (error) {
             next(error);
         }

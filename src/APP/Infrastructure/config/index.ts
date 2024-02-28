@@ -7,10 +7,14 @@ export const config = {
     oauthKeysFilePath: process.env.OAUTH_KEYS_FILE,
     logLevel: process.env.LOG_LEVEL,
     swaggerDocFile: process.env.SWAGGER_DOC_FILE,
-    smtpEmailUser: process.env.EMAIL_USER,
-    smtpEmailPass: process.env.EMAIL_PASS,
+    emailSender: process.env.EMAIL_SENDER,
+    emailReceiver: process.env.EMAIL_RECEIVER,
+    emailPass: process.env.EMAIL_PASS,
+    emailService: process.env.EMAIL_SERVICE,
     slackWebhookURL: process.env.SLACK_WEBHOOK_URL,
     dSN: process.env.SENTRY_DSN,
     newRelicLicenseKey: process.env.NEW_RELIC_LICENSE_KEY,
-    newRelicAppName: process.env.NEW_RELIC_APP_NAME
+    newRelicAppName: process.env.NEW_RELIC_APP_NAME,
+    retryAttempts: process.env.RETRY_ATTEMPTS,
+    concurrencyLimit: process.env.CONCURRENCY_LIMIT
 }

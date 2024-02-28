@@ -4,24 +4,24 @@ import { AppErrStatus } from "@carbonteq/hexapp";
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { v4 } from "uuid";
-import { TodoService } from '../../../../src/APP/Application/todo/Todo.service';
-import { TodoRepository } from '../../../../src/APP/Domain/repositories/Todo.repository';
-import { EventEmitter } from '../../../../src/APP/Application/events/EventEmitter';
+import { TodoService } from '../../../../src/APP/Application/services/todo/TodoService';
+import { TodoRepository } from '../../../../src/APP/Domain/repositories/TodoRepository';
+import { IEventManager } from '../../../../src/APP/Application/interfaces/IEventManager';
 import { PaginatedCollection } from '../../../../src/APP/Domain/pagination/PaginatedCollection';
-import Todo from '../../../../src/APP/Domain/entities/Todo.entity';
-import { AddTodoDto, UpdateTodoDto } from "../../../../src/APP/Application/DTO";
-import { DbMalfunction } from "../../../../src/APP/Infrastructure/adapters/repositories/exceptions/shared/DbMalfunction.exception";
-import { TodoNotFound } from "../../../../src/APP/Domain/exceptions/todo/TodoNotFound.exception";
-import { TodoAlreadyExists } from "../../../../src/APP/Infrastructure/adapters/repositories/exceptions/todo/TodoAlreadyExists.exception";
+import Todo from '../../../../src/APP/Domain/entities/TodoEntity';
+import { AddTodoDto, UpdateTodoDto } from "../../../../src/APP/Application/dto";
+import { DbMalfunction } from "../../../../src/APP/Infrastructure/adapters/repositories/exceptions/db/DbMalfunctionException";
+import { TodoNotFound } from "../../../../src/APP/Domain/exceptions/todo/TodoNotFoundException";
+import { TodoAlreadyExists } from "../../../../src/APP/Infrastructure/adapters/repositories/exceptions/todo/TodoAlreadyExistsException";
 
 describe('TodoService', () => {
     let todoService: TodoService;
     let todoRepositoryMock: TodoRepository;
-    let eventEmitterMock: EventEmitter;
+    let eventEmitterMock: IEventManager;
 
     beforeEach(() => {
         todoRepositoryMock = {} as TodoRepository;
-        eventEmitterMock = {} as EventEmitter;
+        eventEmitterMock = {} as IEventManager;
         todoService = new TodoService(todoRepositoryMock, eventEmitterMock);
     });
 

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { TodoAttributes } from '../../Domain/attributes/Todo.attributes';
+import { TodoAttributes } from '../../Domain/attributes/TodoAttributes';
 
 interface ITodo {
   todoId: string;

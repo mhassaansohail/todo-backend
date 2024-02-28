@@ -2,16 +2,15 @@ import { expect } from 'chai';
 import { Result } from '@carbonteq/fp';
 import sinon from 'sinon';
 import { v4 } from 'uuid';
-import { UserService } from '../../../../src/APP/Application/user/User.service';
-import { UserRepository } from '../../../../src/APP/Domain/repositories/User.repository';
-import { IEncryptionService } from '../../../../src/APP/Application/ports/IEncryptionService';
-import User from '../../../../src/APP/Domain/entities/User.entity';
+import { UserService } from '../../../../src/APP/Application/services/user/User.service';
+import { UserRepository } from '../../../../src/APP/Domain/repositories/UserRepository';
+import { IEncryptionService } from '../../../../src/APP/Application/interfaces/IEncryptionService';
+import User from '../../../../src/APP/Domain/entities/UserEntity';
 import { PaginatedCollection } from '../../../../src/APP/Domain/pagination/PaginatedCollection';
-import { CreateUserDto, UpdateUserDto } from '../../../../src/APP/Application/DTO';
-import { DbMalfunction } from '../../../../src/APP/Infrastructure/adapters/repositories/exceptions/shared/DbMalfunction.exception';
+import { CreateUserDto, UpdateUserDto } from '../../../../src/APP/Application/dto';
+import { DbMalfunction } from '../../../../src/APP/Infrastructure/adapters/repositories/exceptions/db/DbMalfunctionException';
 import { AppErrStatus } from '@carbonteq/hexapp';
-import { UserAlreadyExists } from '../../../../src/APP/Infrastructure/adapters/repositories/exceptions/user/UserAlreadyExists.exception';
-import { UserNotFound } from 'src/APP/Domain/exceptions/user/UserNotFound.exception';
+import { UserNotFound } from '../../../../src/APP/Domain/exceptions/user/UserNotFoundException';
 
 describe('UserService', () => {
     let userService: UserService;
@@ -93,7 +92,7 @@ describe('UserService', () => {
         const hashedPassword = 'password12345';
         encryptionServiceMock.encryptPassword = sinon.stub().returns(Result.Ok(hashedPassword));
         const fakeUser = User.create(createUserDto.name, createUserDto.userName, createUserDto.email, hashedPassword, createUserDto.age);
-        userRepositoryMock.existsBy = sinon.stub().resolves(false);
+        userRepositoryMock.existsBy = sinon.stub().resolves(Result.Ok(false));
         userRepositoryMock.insert = sinon.stub().resolves(Result.Ok(fakeUser));
 
         const result = await userService.createUser(createUserDto);
@@ -113,7 +112,7 @@ describe('UserService', () => {
         const errorMessage = 'Error creating user';
         const errorStatus = AppErrStatus.ExternalServiceFailure;
         encryptionServiceMock.encryptPassword = sinon.stub().returns(Result.Ok("password12345"));
-        userRepositoryMock.existsBy = sinon.stub().resolves(false);
+        userRepositoryMock.existsBy = sinon.stub().resolves(Result.Ok(false));
         userRepositoryMock.insert = sinon.stub().rejects(new DbMalfunction(errorMessage));
 
         const result = await userService.createUser(createUserDto);
@@ -134,6 +133,7 @@ describe('UserService', () => {
         const hashedPassword = 'password12345';
         encryptionServiceMock.encryptPassword = sinon.stub().returns(Result.Ok(hashedPassword));
         const fakeUser = User.create(updateUserDto.name, updateUserDto.userName, updateUserDto.email, hashedPassword, updateUserDto.age);
+        userRepositoryMock.existsBy = sinon.stub().resolves(Result.Ok(false));
         userRepositoryMock.fetchById = sinon.stub().resolves(Result.Ok(fakeUser));
         userRepositoryMock.update = sinon.stub().resolves(Result.Ok(fakeUser));
 
@@ -155,6 +155,7 @@ describe('UserService', () => {
         const errorMessage = 'Error updating user';
         const errorStatus = AppErrStatus.ExternalServiceFailure;
         encryptionServiceMock.encryptPassword = sinon.stub().returns(Result.Ok("password12345"));
+        userRepositoryMock.existsBy = sinon.stub().resolves(Result.Ok(false));
         userRepositoryMock.fetchById = sinon.stub().resolves(Result.Ok(User.create('Test Update User', 'testUpdateUser', 'testUser@example.com', 'password12345', 25)));
         userRepositoryMock.update = sinon.stub().rejects(new DbMalfunction(errorMessage));
 
@@ -168,7 +169,7 @@ describe('UserService', () => {
         const userId = v4();
         const fakeUser = User.create('Test Delete User', 'testDeleteUser', 'testUser@example.com', 'password12345', 25);
         userRepositoryMock.deleteById = sinon.stub().resolves(Result.Ok(fakeUser));
-        userRepositoryMock.existsBy = sinon.stub().resolves(Result.Ok(new UserNotFound("")));
+        userRepositoryMock.existsBy = sinon.stub().resolves(Result.Ok(true));
 
         const result = await userService.deleteUser({ userId });
 
@@ -180,6 +181,7 @@ describe('UserService', () => {
         const userId = v4();
         const errorMessage = 'Error deleting user';
         const errorStatus = AppErrStatus.ExternalServiceFailure;
+        userRepositoryMock.existsBy = sinon.stub().resolves(Result.Ok(true));
         userRepositoryMock.deleteById = sinon.stub().rejects(new DbMalfunction(errorMessage));
 
         const result = await userService.deleteUser({ userId });

@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { injectable, inject } from "tsyringe";
 import { Logger } from "../../APP/Infrastructure/logger/Logger";
-import { TodoService } from "../../APP/Application/todo/Todo.service";
-import { FetchTodoPaginationOptionsDto, TodoIdDto, AddTodoDto, UpdateTodoDto, TodoDto } from "../../APP/Application/DTO";
+import { TodoService } from "../../APP/Application/services/todo/TodoService";
+import { FetchTodoPaginationOptionsDto, TodoIdDto, AddTodoDto, UpdateTodoDto, TodoDto } from "../../APP/Application/dto";
 
 @injectable()
 export class TodoController {

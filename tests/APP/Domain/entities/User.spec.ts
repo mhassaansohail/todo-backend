@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import User from '../../../../src/APP/Domain/entities/User.entity';
-import { InvalidAgeException } from '../../../../src/APP/Domain/exceptions/user/InvalidAge.exception';
+import User from '../../../../src/APP/Domain/entities/UserEntity';
+import { InvalidAgeException } from '../../../../src/APP/Domain/exceptions/user/InvalidAgeException';
 import { UUIDVo } from '@carbonteq/hexapp';
 
 describe('User Entity', () => {
