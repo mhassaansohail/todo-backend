@@ -1,16 +1,16 @@
 import { BaseEntity } from "@carbonteq/hexapp";
 import { IEntity } from "@carbonteq/hexapp";
 
-export type ITodoAttributes = {
+export type TodoAttributesSerialized = {
     Id: string;
     title: string;
     description: string;
     completed: boolean;
 };
 
-export type TodoAttributes = IEntity & Omit<ITodoAttributes, 'Id'>;
+export type TodoAttributes = IEntity & Omit<TodoAttributesSerialized, 'Id'>;
 
-type ITodo = ITodoAttributes & Omit<IEntity, 'Id'>;
+type ITodo = TodoAttributesSerialized & Omit<IEntity, 'Id'>;
 
 class Todo extends BaseEntity implements TodoAttributes {
     private _title: string;

@@ -2,7 +2,7 @@ import { BaseEntity } from "@carbonteq/hexapp";
 import { IEntity } from "@carbonteq/hexapp";
 import { InvalidAgeException } from "../exceptions/user/InvalidAgeException";
 
-export type IUserAttributes = {
+export type UserAttributesSerialized = {
     Id: string;
     name: string;
     email: string;
@@ -11,9 +11,9 @@ export type IUserAttributes = {
     age: number;
 };
 
-export type UserAttributes = IEntity & Omit<IUserAttributes, "Id">;
+export type UserAttributes = IEntity & Omit<UserAttributesSerialized, "Id">;
 
-type IUser = IUserAttributes & Omit<IEntity, 'Id'>;
+type IUser = UserAttributesSerialized & Omit<IEntity, 'Id'>;
 
 class User extends BaseEntity implements UserAttributes {
     private _name: string;
