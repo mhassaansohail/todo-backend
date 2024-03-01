@@ -7,7 +7,7 @@
     "seed": "node ./dist/APP/Infrastructure/seed/index.js"
   },
   "scripts": {
-    "build": "npx tsc -b tsConfig.build.json",
+    "build": "npx tsc -b tsConfig.json",
     "start": "node --experimental-loader=newrelic/esm-loader.mjs dist/HTTP/cli/index.js",
     "dev": "ts-node src/HTTP/cli/index.ts",
     "test": "mocha --require ts-node/register 'tests/**/*spec.ts'"

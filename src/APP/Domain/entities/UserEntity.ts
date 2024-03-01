@@ -11,7 +11,7 @@ export type IUserAttributes = {
     age: number;
 };
 
-type UserAttributes = IEntity & Omit<IUserAttributes, "Id">;
+export type UserAttributes = IEntity & Omit<IUserAttributes, "Id">;
 
 type IUser = IUserAttributes & Omit<IEntity, 'Id'>;
 

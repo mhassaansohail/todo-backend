@@ -8,7 +8,7 @@ export type ITodoAttributes = {
     completed: boolean;
 };
 
-type TodoAttributes = IEntity & Omit<ITodoAttributes, 'Id'>;
+export type TodoAttributes = IEntity & Omit<ITodoAttributes, 'Id'>;
 
 type ITodo = ITodoAttributes & Omit<IEntity, 'Id'>;
 

@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from "axios";
 import { Result } from "@carbonteq/fp";
-import { IRequestService } from "../../../Application/interfaces/IRequestService";
-import { RequestServiceFailure } from "./exceptions/RequestService.exception";
+import { HTTPRequestService } from "../../APP/Application/interfaces/HTTPRequestService";
+import { HTTPRequestServiceFailure } from "./exceptions/HTTPRequestService.exception";
 
-export class RequestService implements IRequestService {
+export class RequestService implements HTTPRequestService {
     requestClient: AxiosInstance
     constructor() {
         this.requestClient = axios;
@@ -12,7 +12,7 @@ export class RequestService implements IRequestService {
         try {
             return Result.Ok(await this.requestClient.post(url, payload));
         } catch (error: any) {
-            return Result.Err(new RequestServiceFailure("makePostRequest"));
+            return Result.Err(new HTTPRequestServiceFailure("makePostRequest"));
         }
     }
 }

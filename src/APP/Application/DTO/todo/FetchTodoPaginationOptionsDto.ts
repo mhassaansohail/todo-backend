@@ -25,13 +25,20 @@ export class FetchTodoPaginationOptionsDto extends BaseDto {
         }).optional().default(""),
     });
 
-    constructor(readonly pageSize: number, readonly pageNumber: number, readonly title?: string, readonly description?: string) {
+    constructor(
+        readonly pageSize: number, 
+        readonly pageNumber: number, 
+        readonly title?: string, 
+        readonly description?: string
+        ) {
         super();
     }
 
     static create(data: unknown): DtoValidationResult<FetchTodoPaginationOptionsDto> {
         const res = BaseDto.validate<FetchTodoPaginationOptionsDto>(FetchTodoPaginationOptionsDto.schema, data);
-        return res.map(({ title, description, pageNumber, pageSize }) => new FetchTodoPaginationOptionsDto(pageSize, pageNumber, title, description));
+        return res.map((
+            { title, description, pageNumber, pageSize }
+            ) => new FetchTodoPaginationOptionsDto(pageSize, pageNumber, title, description));
     }
 
     // static toApp({ pageSize, pageNumber, title, description }: FetchTodoPaginationOptionsDto): DtoValidationResult<IFetchTodoPaginationOptions> {

@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { Result } from "@carbonteq/fp";
-import { IRequestService } from '../../../Application/interfaces/IRequestService';
+import { HTTPRequestService } from '../../../Application/interfaces/HTTPRequestService';
 import { config } from '../../config';
 import { MessageSenderServiceFailure } from './exceptions/MessageSenderService.exception';
 import { INotificationSender } from '../../../Application/interfaces/INotificationSender';
@@ -9,8 +9,8 @@ const webhookUrl: string = String(config.slackWebhookURL);
 
 @injectable()
 export class SlackMessageSender implements INotificationSender {
-    requestService: IRequestService;
-    constructor(@inject("RequestService") requestService: IRequestService) {
+    requestService: HTTPRequestService;
+    constructor(@inject("RequestService") requestService: HTTPRequestService) {
         this.requestService = requestService;
     }
     async send(message: string): Promise<Result<any, Error>> {
