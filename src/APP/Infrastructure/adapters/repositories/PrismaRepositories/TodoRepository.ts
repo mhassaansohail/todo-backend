@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import Todo, { ITodoAttributes } from "../../../../Domain/entities/TodoEntity";
+import Todo, { TodoAttributesSerialized } from "../../../../Domain/entities/TodoEntity";
 import { TodoRepository } from "../../../../Domain/repositories/TodoRepository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../../logger/Logger";
@@ -20,7 +20,7 @@ export class PrismaTodoRepository extends TodoRepository {
         this.client = client;
     }
 
-    async countTotalRows(conditionParams: Partial<ITodoAttributes>): Promise<RepositoryResult<number>> {
+    async countTotalRows(conditionParams: Partial<TodoAttributesSerialized>): Promise<RepositoryResult<number>> {
         try {
             const conditions = {
                 OR: [
@@ -37,7 +37,7 @@ export class PrismaTodoRepository extends TodoRepository {
         }
     }
 
-    async fetchAllPaginated(offset: number, limit: number, queryParams: Partial<ITodoAttributes>): Promise<RepositoryResult<Todo[]>> {
+    async fetchAllPaginated(offset: number, limit: number, queryParams: Partial<TodoAttributesSerialized>): Promise<RepositoryResult<Todo[]>> {
         try {
             const conditions = {
                 OR: [

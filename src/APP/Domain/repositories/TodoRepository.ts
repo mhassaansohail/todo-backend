@@ -1,5 +1,5 @@
 import { BaseRepository, RepositoryResult, UUIDVo } from "@carbonteq/hexapp";
-import Todo, { ITodoAttributes } from "../entities/TodoEntity";
+import Todo, { TodoAttributesSerialized } from "../entities/TodoEntity";
 import { Result } from "@carbonteq/fp";
 import { InvalidOperationOnTodo } from "../exceptions/todo/InvalidOperationOnTodoException";
 
@@ -12,8 +12,8 @@ export abstract class TodoRepository extends BaseRepository<Todo> {
     abstract existsById(todoId: UUIDVo): Promise<RepositoryResult<boolean>>;
 
     abstract fetchAllPaginated(
-        offset: number, limit: number, conditionParams: Partial<ITodoAttributes>
+        offset: number, limit: number, conditionParams: Partial<TodoAttributesSerialized>
     ): Promise<RepositoryResult<Todo[]>>;
 
-    abstract countTotalRows(conditionParams: Partial<ITodoAttributes>): Promise<RepositoryResult<number>>;
+    abstract countTotalRows(conditionParams: Partial<TodoAttributesSerialized>): Promise<RepositoryResult<number>>;
 }

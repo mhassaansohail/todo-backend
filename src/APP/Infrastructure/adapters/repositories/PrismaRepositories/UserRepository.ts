@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import User, { IUserAttributes } from "../../../../Domain/entities/UserEntity";
+import User, { UserAttributesSerialized } from "../../../../Domain/entities/UserEntity";
 import { UserRepository } from "../../../../Domain/repositories/UserRepository";
 import { PrismaClient } from "@prisma/client";
 import { Logger } from "../../../logger/Logger";
@@ -20,7 +20,7 @@ export class PrismaUserRepository extends UserRepository {
         this.client = client;
     }
 
-    async countTotalRows(queryParams: Partial<IUserAttributes>): Promise<RepositoryResult<number>> {
+    async countTotalRows(queryParams: Partial<UserAttributesSerialized>): Promise<RepositoryResult<number>> {
         try {
             const conditions = {
                 OR: [
@@ -38,7 +38,7 @@ export class PrismaUserRepository extends UserRepository {
         }
     }
 
-    async fetchAllPaginated(offset: number, limit: number, queryParams: Partial<IUserAttributes>): Promise<RepositoryResult<User[]>> {
+    async fetchAllPaginated(offset: number, limit: number, queryParams: Partial<UserAttributesSerialized>): Promise<RepositoryResult<User[]>> {
         try {
             const conditions = {
                 OR: [
