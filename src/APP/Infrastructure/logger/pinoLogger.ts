@@ -1,7 +1,8 @@
 import pino from 'pino';
+import { config } from '../config';
 
 export const pinoLogger = pino({
-    level: process.env.PINO_LOG_LEVEL || 'info',
+    level: config.logLevel || 'info',
     formatters: {
         bindings: (bindings: any) => {
             return { pid: bindings.pid, host: bindings.hostname };

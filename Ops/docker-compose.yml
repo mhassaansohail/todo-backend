@@ -1,0 +1,57 @@
+version: '3'
+secrets:
+  tokenSecretKey:
+    environment: "TOKEN_SECRET_KEY"
+  saltRounds:
+    environment: "SALT_ROUNDS"
+  emailUser:
+    environment: "EMAIL_USER"
+  emailPass:
+    environment: "EMAIL_PASS"
+  dbUser:
+    environment: "DB_USER"
+  dbPass:
+    environment: "DB_PASS"
+  dbRootPass:
+    environment: "DB_ROOT_PASSWORD"
+services:
+  app:
+    build: .
+    container_name: todo-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql://${dbUser}:${dbPass}@db:3307/todo
+      TOKEN_SECRET_KEY: ${tokenSecretKey}
+      EMAIL_USER: ${emailUser}
+      EMAIL_PASS: ${emailPass}
+
+    networks:
+      - todo-network
+
+  db:
+    image: mysql
+    container_name: todo-db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "db", "-P", "3306", "-u", "${dbUser}", "-p${dbPass}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
+
+
+volumes:
+  mysql-data:
