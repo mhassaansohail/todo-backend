@@ -1,0 +1,4 @@
+node_modules
+.env
+oAuth2.keys.json
+*.log
